@@ -1,0 +1,18 @@
+:host {
+  display: block;
+}
+
+.site-footer {
+  margin-top: 4rem;
+  background-color: #0a0a0a;
+  color: #f5f4f2;
+  text-align: center;
+  padding: 2rem;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  letter-spacing: 0.1em;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 0.85rem;
+}

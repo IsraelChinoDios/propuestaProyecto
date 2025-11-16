@@ -1,0 +1,21 @@
+<header class="page-header">
+  <div class="logo">
+    <img [src]="logo" alt="Séptimo Blog" />
+  </div>
+  <nav class="menu">
+    <ul>
+      <li *ngFor="let item of navigation" [class.active]="item.id && item.id === active">
+        @if (item.route) {
+          <a [routerLink]="item.route">{{ item.label }}</a>
+        } @else {
+          <a [href]="item.url || '#'">{{ item.label }}</a>
+        }
+      </li>
+      <li class="menu-icon">
+        <button type="button" aria-label="Buscar">
+          <img src="assets/Imagenes/search.png" alt="" />
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>

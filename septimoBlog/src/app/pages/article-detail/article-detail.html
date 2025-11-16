@@ -1,0 +1,31 @@
+@if (article(); as detail) {
+  <section class="article-detail">
+    <div class="article-layout">
+      <div class="article-image">
+        <img [src]="detail.img1 || 'assets/Imagenes/Poster/Poster 1.jpg'" [alt]="detail.titulo" />
+      </div>
+      <div class="article-body">
+        <p class="article-date">{{ detail.fechaPublicacion || detail.createdAt | date }}</p>
+        <p class="article-author">Creado por {{ userName() }}</p>
+        <h1>{{ detail.titulo }}</h1>
+        <h2>{{ detail.nombrePeli }} ({{ detail.anoEstreno }})</h2>
+        <p class="article-lead">Dirección: {{ detail.directores.join(', ') }}</p>
+        <div class="article-content">
+          <p>{{ detail.cuerpo }}</p>
+        </div>
+        <div class="gallery">
+          <img *ngIf="detail.img2" [src]="detail.img2" alt="Imagen secundaria" />
+          <img *ngIf="detail.img3" [src]="detail.img3" alt="Imagen secundaria" />
+        </div>
+      </div>
+    </div>
+  </section>
+} @else if (error()) {
+  <section class="article-detail empty">
+    <p>{{ error() }}</p>
+  </section>
+} @else {
+  <section class="article-detail empty">
+    <p>Cargando artículo...</p>
+  </section>
+}

@@ -1,0 +1,25 @@
+<section class="auth-container">
+  <h1>Se parte de <span>el séptimo blog</span></h1>
+
+  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+
+  <div class="forms-wrapper">
+    <div class="form-card">
+      <h2>Crear cuenta</h2>
+      <form (ngSubmit)="onRegister()">
+        <input type="text" name="registro-nombre" placeholder="Nombre de usuario" [(ngModel)]="registerData.nombre" required />
+        <input type="password" name="registro-contrasena" placeholder="Contraseña" [(ngModel)]="registerData.contrasena" required />
+        <button type="submit">Crea tu cuenta</button>
+      </form>
+    </div>
+
+    <div class="form-card">
+      <h2>Iniciar sesión</h2>
+      <form (ngSubmit)="onLogin()">
+        <input type="text" name="login-nombre" placeholder="Nombre de usuario" [(ngModel)]="loginData.nombre" required />
+        <input type="password" name="login-contrasena" placeholder="Contraseña" [(ngModel)]="loginData.contrasena" required />
+        <button type="submit">Inicia sesión</button>
+      </form>
+    </div>
+  </div>
+</section>

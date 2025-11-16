@@ -1,0 +1,10 @@
+@if (articles.length) {
+  <section class="article-grid">
+    <div class="section-header">
+      <h2>{{ title }}</h2>
+    </div>
+    <div class="grid">
+      <app-article-card *ngFor="let article of articles" [article]="article"></app-article-card>
+    </div>
+  </section>
+}

@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  border-radius: 18px;
+  background-color: #fff;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  text-align: center;
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.08);
+  height: 100%;
+}
+
+.review-card img {
+  width: 80%;
+  max-width: 220px;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  object-fit: cover;
+}
+
+.info .title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 0.5rem 0 0;
+}
+
+.info .year {
+  margin: 0.25rem 0 0.75rem;
+  color: #555;
+  letter-spacing: 0.2em;
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.star {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #f5c73c;
+  transition: transform 0.2s ease;
+}
+
+.star:hover {
+  transform: translateY(-2px);
+}
+
+.star.filled {
+  color: #f5c73c;
+}
+
+.review-button {
+  background-color: #f5c73c;
+  color: #282828;
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-button:hover {
+  background-color: #d19d00;
+  color: #fff;
+}

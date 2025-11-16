@@ -1,0 +1,15 @@
+<section class="reviews-hero">
+  <div class="hero-box">
+    <p class="hero-title">Interactúa con la comunidad</p>
+    <p class="hero-subtitle">
+      Explora las reseñas de otros cinéfilos, comparte tus opiniones, y participa en el análisis de
+      películas. Únete a una charla donde cada película se convierte en una conversación.
+    </p>
+  </div>
+</section>
+
+<section class="reviews-grid">
+  @for (review of reviews; track review.id) {
+    <app-review-card [review]="review"></app-review-card>
+  }
+</section>

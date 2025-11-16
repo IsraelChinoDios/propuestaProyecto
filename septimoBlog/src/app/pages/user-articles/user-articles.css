@@ -1,0 +1,124 @@
+:host {
+  display: block;
+  margin-top: 2rem;
+}
+
+.my-articles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.my-articles h1 {
+  color: #f5c73c;
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin: 0;
+}
+
+.cards-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.feedback {
+  color: #b91c1c;
+}
+
+.article-card {
+  width: 280px;
+  height: 380px;
+  border-radius: 12px;
+  background-color: #fff;
+  text-align: center;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.no-articles {
+  margin-top: 1rem;
+  font-style: italic;
+}
+.article-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.45rem;
+  min-height: 3.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+.article-card .date {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.article-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-top: 0.75rem;
+}
+
+.article-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.add-card a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+  gap: 0.5rem;
+}
+
+.icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #f5c73c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #fff;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-button {
+  border: none;
+  background-color: #282828;
+  color: #fff;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.nav-button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

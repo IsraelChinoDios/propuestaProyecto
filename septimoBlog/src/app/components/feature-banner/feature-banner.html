@@ -1,0 +1,13 @@
+@if (feature; as item) {
+  <section class="feature">
+    <img class="feature-image" [src]="item.image" [alt]="item.title" loading="lazy" />
+    <span class="feature-overlay" aria-hidden="true"></span>
+    <div class="feature-card" role="button" aria-label="Leer artículo completo">
+      <p class="feature-date">{{ item.date }}</p>
+      <h1>{{ item.title }}</h1>
+      <p class="feature-subtitle">{{ item.subtitle }}</p>
+      <p class="feature-author">por {{ item.author }}</p>
+      <p class="feature-description">{{ item.description }}</p>
+    </div>
+  </section>
+}

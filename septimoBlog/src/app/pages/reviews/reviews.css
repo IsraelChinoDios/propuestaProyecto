@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  margin-top: 2.5rem;
+}
+
+.reviews-hero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.hero-box {
+  width: 90%;
+  border-bottom: 1px solid black;
+  text-align: center;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  padding: 2rem 1rem;
+}
+
+.hero-title {
+  color: #f5c73c;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: bold;
+  margin: 0 0 0.75rem;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  grid-auto-rows: 1fr;
+}

@@ -1,0 +1,31 @@
+@if (review) {
+  <article class="review-card">
+    <img [src]="review.image" [alt]="review.title" />
+    <div class="info">
+      <p class="title">{{ review.title }}</p>
+      <p class="year">{{ review.year }}</p>
+      <div class="stars">
+        @for (star of stars; track star) {
+          <button
+            type="button"
+            class="star"
+            [class.filled]="star <= rating()"
+            (click)="rate(star)"
+            aria-label="Calificar {{ star }} estrellas"
+          >
+            {{ star <= rating() ? '★' : '☆' }}
+          </button>
+        }
+      </div>
+      @if (review.detailRoute) {
+        <a class="review-button" [routerLink]="review.detailRoute">
+          {{ review.ctaLabel || 'Reseñar' }}
+        </a>
+      } @else {
+        <button class="review-button" type="button">
+          {{ review.ctaLabel || 'Reseñar' }}
+        </button>
+      }
+    </div>
+  </article>
+}

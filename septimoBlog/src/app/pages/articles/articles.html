@@ -1,0 +1,32 @@
+<section class="articles-hero">
+  <h1>Artículos recientes</h1>
+</section>
+
+<section class="articles-list">
+  @if (currentSlice.length) {
+    @for (article of currentSlice; track article._id; let idx = $index) {
+      <article class="article-row" [class.image-right]="idx % 2 === 1">
+        <div class="article-image">
+          <img [src]="article.img1 || 'assets/Imagenes/Poster/Poster 1.jpg'" [alt]="article.titulo" loading="lazy" />
+        </div>
+        <div class="article-copy">
+          <p class="author">Creado por {{ article.autorNombre || 'Usuario' }}</p>
+          <p class="date">{{ article.fechaPublicacion || article.createdAt | date }}</p>
+          <h2>{{ article.titulo }}</h2>
+          <p class="summary">{{ article.preview }}</p>
+          <div class="cta"><a class="cta-button" [routerLink]="['/articulos', article._id]">Sigue leyendo</a></div>
+        </div>
+      </article>
+    }
+    <div class="nav-controls">
+      <button type="button" class="nav-button" (click)="prev()" [disabled]="!canGoPrev()">
+        <span>&#9664;</span>
+      </button>
+      <button type="button" class="nav-button" (click)="next()" [disabled]="!canGoNext()">
+        <span>&#9654;</span>
+      </button>
+    </div>
+  } @else {
+    <p>No hay artículos publicados aún.</p>
+  }
+</section>

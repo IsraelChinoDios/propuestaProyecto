@@ -1,0 +1,66 @@
+<section class="profile-container">
+  <div class="profile-left">
+    <div class="avatar">
+      <img [src]="user.avatar || 'assets/Imagenes/user.png'" alt="Foto de {{ user.nombre }}" />
+      <input type="file" #avatarInput class="avatar-input" accept="image/*" (change)="onAvatarSelected($event)" />
+      <button type="button" class="icon-button avatar-edit" (click)="openAvatarPicker()" aria-label="Cambiar foto de perfil">
+        <span class="material-icons">photo_camera</span>
+      </button>
+    </div>
+    <div class="stats">
+      <a class="stat-button" routerLink="/resenas">Reseñas ({{ user.idResenas }})</a>
+      <a class="stat-button" routerLink="/mis-articulos">Artículos ({{ user.idArticulos }})</a>
+      <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="profile-right">
+    <div class="nickname">{{ user.nombre }}</div>
+    <div class="about-title">
+      Sobre mí
+      <button type="button" class="icon-button" (click)="toggleSobreMi()">
+        <span class="material-icons">edit</span>
+      </button>
+    </div>
+
+    @if (editingSobreMi) {
+      <div class="edit-block">
+        <textarea [(ngModel)]="sobreMiDraft"></textarea>
+        <div class="edit-actions">
+          <button type="button" (click)="saveSobreMi()">Guardar</button>
+          <button type="button" (click)="toggleSobreMi()">Cancelar</button>
+        </div>
+      </div>
+    } @else {
+      <p class="description">
+        {{ user.sobreMi || 'Este usuario aún no escribe su historia.' }}
+      </p>
+    }
+
+    <div class="genres">
+      <div class="genres-header">
+        <p class="genres-title">Mis géneros favoritos</p>
+        <button type="button" class="icon-button" (click)="toggleGeneros()">
+          <span class="material-icons">edit</span>
+        </button>
+      </div>
+
+      @if (editingGeneros) {
+        <div class="edit-block">
+          <textarea [(ngModel)]="generosDraft" placeholder="Separados por coma"></textarea>
+          <div class="edit-actions">
+            <button type="button" (click)="saveGeneros()">Guardar</button>
+            <button type="button" (click)="toggleGeneros()">Cancelar</button>
+          </div>
+        </div>
+      } @else {
+        <div class="genres-list">
+          @for (genre of user.generosFav; track genre) {
+            <span class="genre-pill">{{ genre }}</span>
+          }
+        </div>
+      }
+    </div>
+    
+  </div>
+</section>

@@ -1,0 +1,32 @@
+<section class="my-articles">
+  <h1>MIS ARTÍCULOS</h1>
+
+  <p class="feedback" *ngIf="error">{{ error }}</p>
+
+  <div *ngIf="loading">Cargando...</div>
+  <div class="cards-row" *ngIf="!loading">
+    <article class="article-card add-card">
+      <a routerLink="/mis-articulos/crear">
+        <div class="icon">+</div>
+        <p>Añade un artículo</p>
+      </a>
+    </article>
+
+    @for (article of currentSlice; track article.id) {
+      <a class="article-card article-link" [routerLink]="article.route">
+        <h2>{{ article.title }}</h2>
+        <p class="date">{{ article.date }}</p>
+        <img [src]="article.image" [alt]="article.title" />
+      </a>
+    }
+
+    @if (!articles.length) {
+      <p class="no-articles">Aún no tienes artículos publicados.</p>
+    }
+  </div>
+
+  <div class="nav-controls" *ngIf="articles.length > pageSize">
+    <button type="button" class="nav-button" (click)="prev()" [disabled]="!canGoPrev()">&#9664;</button>
+    <button type="button" class="nav-button" (click)="next()" [disabled]="!canGoNext()">&#9654;</button>
+  </div>
+</section>

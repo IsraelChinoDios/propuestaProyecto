@@ -1,0 +1,12 @@
+@if (article; as item) {
+  <article class="article-card">
+    <img [src]="item.image" [alt]="item.title" loading="lazy" />
+    <span class="article-overlay" aria-hidden="true"></span>
+    <div class="article-info">
+      <p class="date">{{ item.date }}</p>
+      <h3>{{ item.title }}</h3>
+      <p class="subtitle">{{ item.subtitle }}</p>
+      <p class="author">{{ item.author }}</p>
+    </div>
+  </article>
+}

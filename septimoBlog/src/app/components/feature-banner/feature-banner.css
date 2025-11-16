@@ -1,0 +1,117 @@
+:host {
+  display: block;
+}
+
+.feature {
+  position: relative;
+  /* Aumentado según pedido: banner más grande */
+  height: 560px;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.22);
+}
+
+.feature-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.feature-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.feature-card {
+  position: absolute;
+  inset: 0;
+  width: min(560px, 100%);
+  padding: 4rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.9rem;
+  color: #fff;
+  z-index: 1;
+  background: linear-gradient(rgba(245, 199, 60, 0.75));
+  overflow: visible;
+  cursor: pointer;
+}
+
+.feature-highlight {
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #1d1d1d;
+}
+
+.feature-date {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.feature-card h1 {
+  font-size: clamp(2.2rem, 5.5vw, 3.2rem);
+  margin: 0.3rem 0 0.6rem;
+  font-family: 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.feature-subtitle {
+  font-size: 1.25rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.feature-author {
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.feature-description {
+  margin-top: 0.6rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.feature-card button {
+  align-self: flex-start;
+  margin-top: 1rem;
+  padding: 0.95rem 1.85rem;
+  font-size: 1rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  background-color: #1f1f1f;
+  color: #f5f4f2;
+  cursor: pointer;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 900px) {
+  .feature {
+    height: auto;
+    /* mobile: conservar algo de altura pero más compacto */
+    min-height: 520px;
+  }
+
+  .feature-card {
+    position: relative;
+    clip-path: none;
+    padding: 2.25rem 1.75rem;
+    width: 100%;
+  }
+
+  .feature-overlay {
+    opacity: 0.4;
+  }
+}

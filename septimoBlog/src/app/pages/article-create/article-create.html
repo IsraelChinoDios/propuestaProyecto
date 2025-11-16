@@ -1,0 +1,57 @@
+<section class="article-create">
+  <h1>CREAR ARTÍCULO</h1>
+
+  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+  <div class="modal" *ngIf="success">
+    <div class="modal-content">
+      <p>Artículo enviado con éxito.</p>
+      <button type="button" (click)="closeSuccess()">Aceptar</button>
+    </div>
+  </div>
+
+  <form class="article-form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="form-left">
+        <input type="text" placeholder="TÍTULO" [(ngModel)]="form.titulo" name="titulo" required />
+        <input
+          type="text"
+          placeholder="NOMBRE DE LA PELÍCULA / CORTO"
+          [(ngModel)]="form.nombrePeli"
+          name="nombrePeli"
+          required
+        />
+        <input
+          type="number"
+          placeholder="AÑO DE ESTRENO"
+          [(ngModel)]="form.anoEstreno"
+          name="anoEstreno"
+          required
+        />
+        <input
+          type="text"
+          placeholder="DIRECTOR(ES)"
+          [(ngModel)]="form.directores"
+          name="directores"
+          required
+        />
+      </div>
+      <div class="form-right">
+        <textarea placeholder="CUERPO DEL ARTÍCULO" [(ngModel)]="form.cuerpo" name="cuerpo" required></textarea>
+        <label class="file-upload">
+          AGREGA HASTA TRES IMÁGENES (OPCIONAL)
+          <input type="file" multiple accept="image/*" (change)="onFileChange($event)" />
+        </label>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="actions">
+        <button type="submit" class="btn send" [disabled]="loading">ENVIAR</button>
+        <button type="button" class="btn cancel" [disabled]="loading">CANCELAR</button>
+      </div>
+      <div class="note">
+        Los administradores revisarán tu artículo antes de publicarlo. Recibirás una notificación
+        cuando esté disponible. ¡Gracias por tu contribución a El Séptimo Blog!
+      </div>
+    </div>
+  </form>
+</section>
