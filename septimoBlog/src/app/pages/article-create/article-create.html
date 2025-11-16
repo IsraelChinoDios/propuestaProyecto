@@ -1,4 +1,4 @@
-<section class="article-create">
+﻿<section class="article-create">
   <h1>CREAR ARTÍCULO</h1>
 
   <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
@@ -46,7 +46,7 @@
     <div class="form-grid">
       <div class="actions">
         <button type="submit" class="btn send" [disabled]="loading">ENVIAR</button>
-        <button type="button" class="btn cancel" [disabled]="loading">CANCELAR</button>
+        <button type="button" class="btn cancel" (click)="goBack()" [disabled]="loading">VOLVER A MIS ARTÍCULOS</button>
       </div>
       <div class="note">
         Los administradores revisarán tu artículo antes de publicarlo. Recibirás una notificación

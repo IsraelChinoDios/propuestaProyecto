@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -79,6 +79,10 @@ export class ArticleCreateComponent {
 
   protected closeSuccess(): void {
     this.success = false;
+    this.router.navigate(['/mis-articulos']);
+  }
+
+  protected goBack(): void {
     this.router.navigate(['/mis-articulos']);
   }
 

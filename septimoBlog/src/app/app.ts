@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+﻿import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -35,12 +35,12 @@ export class App {
   }
 
   private updateActiveSection(url: string): void {
-    if (url.startsWith('/articulos')) {
+    if (url.startsWith('/mis-articulos') || url.startsWith('/perfil')) {
+      this.currentSection.set('perfil');
+    } else if (url.startsWith('/articulos')) {
       this.currentSection.set('articulos');
     } else if (url.startsWith('/resenas')) {
       this.currentSection.set('resenas');
-    } else if (url.startsWith('/perfil')) {
-      this.currentSection.set('perfil');
     } else {
       this.currentSection.set('inicio');
     }

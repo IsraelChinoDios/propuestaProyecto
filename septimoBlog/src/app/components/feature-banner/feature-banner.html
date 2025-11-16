@@ -1,5 +1,5 @@
-@if (feature; as item) {
-  <section class="feature">
+﻿@if (feature; as item) {
+  <section class="feature" [routerLink]="item.slug">
     <img class="feature-image" [src]="item.image" [alt]="item.title" loading="lazy" />
     <span class="feature-overlay" aria-hidden="true"></span>
     <div class="feature-card" role="button" aria-label="Leer artículo completo">

@@ -1,5 +1,5 @@
-@if (article; as item) {
-  <article class="article-card">
+﻿@if (article; as item) {
+  <article class="article-card" [routerLink]="item.slug">
     <img [src]="item.image" [alt]="item.title" loading="lazy" />
     <span class="article-overlay" aria-hidden="true"></span>
     <div class="article-info">
