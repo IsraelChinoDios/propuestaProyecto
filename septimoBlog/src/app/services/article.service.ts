@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { from, mergeMap, Observable } from 'rxjs';
 
@@ -15,6 +15,9 @@ export interface ArticleCreatePayload {
 export interface UserArticleResponse {
   _id: string;
   titulo: string;
+  nombrePeli?: string;
+  anoEstreno?: number;
+  directores?: string[];
   fechaPublicacion?: string;
   createdAt: string;
   img1?: string;

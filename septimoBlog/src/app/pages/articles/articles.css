@@ -1,4 +1,4 @@
-:host {
+﻿:host {
   display: block;
   margin-top: 2.5rem;
 }
@@ -52,6 +52,7 @@
 }
 
 .article-image {
+  height: 320px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
@@ -157,5 +158,9 @@
 
   .article-row.image-right {
     flex-direction: column;
+  }
+
+  .article-image {
+    height: 240px;
   }
 }

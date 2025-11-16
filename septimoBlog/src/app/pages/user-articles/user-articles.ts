@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -21,7 +21,7 @@ export class UserArticlesComponent {
   protected loading = true;
   protected error = '';
   protected startIndex = 0;
-  protected pageSize = 5;
+  protected pageSize = 4;
 
   ngOnInit(): void {
     const user = this.authService.currentUser();
