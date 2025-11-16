@@ -1,0 +1,40 @@
+﻿<section class="article-create">
+  <h1>CREAR PELÍCULA PARA RESEÑAR</h1>
+
+  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+  <div class="modal" *ngIf="success">
+    <div class="modal-content">
+      <p>Película creada para reseñar.</p>
+      <button type="button" (click)="closeSuccess()">Aceptar</button>
+    </div>
+  </div>
+
+  <form class="article-form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="form-left">
+        <input type="text" placeholder="NOMBRE DE LA PELÍCULA" [(ngModel)]="form.nombrePeli" name="nombrePeli" required />
+        <input type="number" placeholder="AÑO DE ESTRENO" [(ngModel)]="form.anoEstreno" name="anoEstreno" required />
+        <input type="text" placeholder="DIRECTOR(ES)" [(ngModel)]="form.director" name="director" required />
+        <input type="text" placeholder="ESCRITOR(ES)" [(ngModel)]="form.escritor" name="escritor" required />
+        <input type="text" placeholder="ACTOR(ES)" [(ngModel)]="form.actores" name="actores" required />
+      </div>
+      <div class="form-right">
+        <input type="text" placeholder="GÉNERO(S)" [(ngModel)]="form.genero" name="genero" required />
+        <textarea placeholder="SINOPSIS" [(ngModel)]="form.sinopsis" name="sinopsis" required></textarea>
+        <label class="file-upload">
+          AGREGA UN PÓSTER
+          <input type="file" accept="image/*" (change)="onFileChange($event)" required />
+        </label>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="actions">
+        <button type="submit" class="btn send" [disabled]="loading">ENVIAR</button>
+        <button type="button" class="btn cancel" (click)="cancel()" [disabled]="loading">CANCELAR</button>
+      </div>
+      <div class="note">
+        Solo administradores pueden crear películas para reseñar. El póster es obligatorio.
+      </div>
+    </div>
+  </form>
+</section>

@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -18,6 +18,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/articles', require('./routes/articles.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
+app.use('/api/movie-reviews', require('./routes/movie-reviews.routes'));
 
 app.use((err, _req, res, _next) => {
   console.error(err);

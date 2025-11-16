@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+﻿const { Schema, model } = require('mongoose');
 
 const MovieReviewSchema = new Schema(
   {
@@ -22,6 +22,10 @@ const MovieReviewSchema = new Schema(
     escritor: String,
     actores: [String],
     genero: String,
+    poster: {
+      type: String,
+      required: true
+    },
     resenas: [
       {
         type: Schema.Types.ObjectId,

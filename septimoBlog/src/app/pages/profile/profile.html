@@ -1,4 +1,4 @@
-<section class="profile-container">
+﻿<section class="profile-container">
   <div class="profile-left">
     <div class="avatar">
       <img [src]="user.avatar || 'assets/Imagenes/user.png'" alt="Foto de {{ user.nombre }}" />
@@ -10,6 +10,9 @@
     <div class="stats">
       <a class="stat-button" routerLink="/resenas">Reseñas ({{ user.idResenas }})</a>
       <a class="stat-button" routerLink="/mis-articulos">Artículos ({{ user.idArticulos }})</a>
+      @if (user.rol === 'admin') {
+        <a class="stat-button" routerLink="/resenas/crear">Añadir reseñas</a>
+      }
       <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
     </div>
   </div>
