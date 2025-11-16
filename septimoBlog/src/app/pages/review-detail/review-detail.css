@@ -40,11 +40,14 @@
   background-color: #fdf2c6;
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
+  width: 100%;
+  justify-content: center;
 }
 
-.star-icon {
-  font-size: 2rem;
-  color: #f5c73c;
+.rating.no-rating {
+  justify-content: center;
+  font-weight: bold;
+  color: #444;
 }
 
 .score .value {

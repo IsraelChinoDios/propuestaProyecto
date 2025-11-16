@@ -1,8 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+﻿import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MOVIE_REVIEW_DETAILS } from '../../data/blog-data';
-import { MovieReviewDetail } from '../../models/article';
+import { ReviewService, MovieReviewResponse } from '../../services/review.service';
 
 @Component({
   selector: 'app-review-detail',
@@ -14,24 +13,27 @@ import { MovieReviewDetail } from '../../models/article';
 export class ReviewDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  protected readonly detail = signal<MovieReviewDetail | null>(null);
-  protected readonly showForm = signal(false);
+  private readonly reviewService = inject(ReviewService);
+
+  protected readonly detail = signal<MovieReviewResponse | null>(null);
 
   constructor() {
     this.route.paramMap
       .pipe(takeUntilDestroyed())
       .subscribe((params) => {
         const id = params.get('reviewId') ?? '';
-        const movie = MOVIE_REVIEW_DETAILS[id];
-        if (!movie) {
+        if (!id) {
           this.router.navigate(['/resenas']);
           return;
         }
-        this.detail.set(movie);
+        this.loadMovie(id);
       });
   }
 
-  protected toggleForm(): void {
-    this.showForm.update((value) => !value);
+  private loadMovie(id: string): void {
+    this.reviewService.getMovieReview(id).subscribe({
+      next: (movie) => this.detail.set(movie),
+      error: () => this.router.navigate(['/resenas'])
+    });
   }
 }

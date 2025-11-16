@@ -1,57 +1,28 @@
-@if (detail(); as movie) {
+﻿@if (detail(); as movie) {
   <section class="movie-container">
     <div class="movie-left">
-      <img [src]="movie.poster" [alt]="movie.title" class="poster" />
-      <div class="rating">
-        <span class="star-icon">★</span>
+      <img [src]="movie.poster" [alt]="movie.nombrePeli" class="poster" />
+      <div class="rating" *ngIf="movie.resenas?.length; else noReviews">
         <div class="score">
-          <div class="value">{{ movie.ratingValue }}</div>
-          <div class="votes">{{ movie.ratingVotes }}</div>
+          <div class="value">{{ movie.calificacionGeneral ?? 0 | number: '1.1-1' }}</div>
+          <div class="votes">Promedio de usuarios</div>
         </div>
       </div>
+      <ng-template #noReviews>
+        <div class="rating no-rating">Sin reseñas aún</div>
+      </ng-template>
       <div class="details">
         <p><strong>Director:</strong> {{ movie.director }}</p>
-        <p><strong>Escritor:</strong> {{ movie.writer }}</p>
-        <p><strong>Estrellas:</strong> {{ movie.stars }}</p>
-        <p><strong>Género:</strong> {{ movie.genre }}</p>
+        <p><strong>Escritor:</strong> {{ movie.escritor }}</p>
+        <p><strong>Actores:</strong> {{ movie.actores.join(', ') }}</p>
+        <p><strong>Género:</strong> {{ movie.genero }}</p>
       </div>
     </div>
 
     <div class="movie-right">
-      <h1 class="movie-title">{{ movie.title }}</h1>
-      <h2 class="movie-year">{{ movie.year }}</h2>
-      <p class="synopsis">
-        {{ movie.synopsis }}
-      </p>
-
-      <div class="reviews-list">
-        @for (review of movie.reviews; track review.user + review.date) {
-          <article class="review">
-            <div class="review-date">{{ review.date }}</div>
-            <h3>{{ review.user }}</h3>
-            <p>{{ review.comment }}</p>
-            <div class="rating-review">
-              <span class="star-icon">★</span>
-              <span class="rating-score">{{ review.score }}</span>
-            </div>
-          </article>
-        }
-      </div>
-
-      <button class="botonResenar" type="button" (click)="toggleForm()">
-        {{ showForm() ? 'Cerrar formulario' : 'Añadir reseña' }}
-      </button>
-
-      @if (showForm()) {
-        <form class="review-form">
-          <input type="number" step="0.1" min="0" max="10" placeholder="CALIFICACIÓN (0.0 - 10.0)" />
-          <textarea placeholder="RESEÑA"></textarea>
-          <div class="button-container">
-            <button class="btn btn-submit" type="button">ENVIAR</button>
-            <button class="btn btn-cancel" type="button" (click)="toggleForm()">CANCELAR</button>
-          </div>
-        </form>
-      }
+      <h1 class="movie-title">{{ movie.nombrePeli }}</h1>
+      <h2 class="movie-year">{{ movie.ano }}</h2>
+      <p class="synopsis">{{ movie.sinopsis }}</p>
     </div>
   </section>
 } @else {

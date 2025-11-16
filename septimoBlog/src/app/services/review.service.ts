@@ -1,8 +1,22 @@
 ﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { from, mergeMap } from 'rxjs';
+import { from, mergeMap, Observable } from 'rxjs';
 
 export interface MovieCreatePayload {
+  nombrePeli: string;
+  ano: number;
+  sinopsis: string;
+  calificacionGeneral?: number;
+  director: string;
+  escritor: string;
+  actores: string[];
+  genero: string;
+  poster: string;
+  resenas?: string[];
+}
+
+export interface MovieReviewResponse {
+  _id: string;
   nombrePeli: string;
   ano: number;
   sinopsis: string;
@@ -29,6 +43,14 @@ export class ReviewService {
         })
       )
     );
+  }
+
+  getMovieReviews(): Observable<MovieReviewResponse[]> {
+    return this.http.get<MovieReviewResponse[]>(`${this.apiUrl}/movie-reviews`);
+  }
+
+  getMovieReview(id: string): Observable<MovieReviewResponse> {
+    return this.http.get<MovieReviewResponse>(`${this.apiUrl}/movie-reviews/${id}`);
   }
 
   private fileToBase64(file: File): Promise<string> {
