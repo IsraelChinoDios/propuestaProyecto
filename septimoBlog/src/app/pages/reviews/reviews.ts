@@ -16,6 +16,9 @@ export class ReviewsComponent implements OnInit {
   private readonly reviewService = inject(ReviewService)
 
   protected reviews: Review[] = []
+  protected currentSlice: Review[] = []
+  protected startIndex = 0
+  protected pageSize = 5
   protected loading = true
   protected error = ''
 
@@ -23,6 +26,7 @@ export class ReviewsComponent implements OnInit {
     this.reviewService.getMovieReviews().subscribe({
       next: (movies) => {
         this.reviews = movies.map((movie) => this.toReviewCard(movie))
+        this.updateSlice()
         this.loading = false
       },
       error: () => {
@@ -30,6 +34,32 @@ export class ReviewsComponent implements OnInit {
         this.loading = false
       },
     })
+  }
+
+  protected canGoPrev(): boolean {
+    return this.startIndex > 0
+  }
+
+  protected canGoNext(): boolean {
+    return this.startIndex + this.pageSize < this.reviews.length
+  }
+
+  protected prev(): void {
+    if (this.canGoPrev()) {
+      this.startIndex = Math.max(this.startIndex - this.pageSize, 0)
+      this.updateSlice()
+    }
+  }
+
+  protected next(): void {
+    if (this.canGoNext()) {
+      this.startIndex += this.pageSize
+      this.updateSlice()
+    }
+  }
+
+  private updateSlice(): void {
+    this.currentSlice = this.reviews.slice(this.startIndex, this.startIndex + this.pageSize)
   }
 
   private toReviewCard(movie: MovieReviewResponse): Review {
