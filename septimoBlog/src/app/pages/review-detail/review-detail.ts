@@ -1,4 +1,5 @@
-﻿import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewService, MovieReviewResponse } from '../../services/review.service';
@@ -6,7 +7,7 @@ import { ReviewService, MovieReviewResponse } from '../../services/review.servic
 @Component({
   selector: 'app-review-detail',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './review-detail.html',
   styleUrl: './review-detail.css',
 })

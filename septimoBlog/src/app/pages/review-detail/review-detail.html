@@ -1,16 +1,17 @@
-﻿@if (detail(); as movie) {
+@if (detail(); as movie) {
   <section class="movie-container">
     <div class="movie-left">
       <img [src]="movie.poster" [alt]="movie.nombrePeli" class="poster" />
-      <div class="rating" *ngIf="movie.resenas?.length; else noReviews">
-        <div class="score">
-          <div class="value">{{ movie.calificacionGeneral ?? 0 | number: '1.1-1' }}</div>
-          <div class="votes">Promedio de usuarios</div>
+      @if (movie.resenas?.length) {
+        <div class="rating">
+          <div class="score">
+            <div class="value">{{ movie.calificacionGeneral ?? 0 | number: '1.1-1' }}</div>
+            <div class="votes">Promedio de usuarios</div>
+          </div>
         </div>
-      </div>
-      <ng-template #noReviews>
+      } @else {
         <div class="rating no-rating">Sin reseñas aún</div>
-      </ng-template>
+      }
       <div class="details">
         <p><strong>Director:</strong> {{ movie.director }}</p>
         <p><strong>Escritor:</strong> {{ movie.escritor }}</p>
