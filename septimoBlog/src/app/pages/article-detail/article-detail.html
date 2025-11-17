@@ -14,8 +14,12 @@
           <p>{{ detail.cuerpo }}</p>
         </div>
         <div class="gallery">
-          <img *ngIf="detail.img2" [src]="detail.img2" alt="Imagen secundaria" />
-          <img *ngIf="detail.img3" [src]="detail.img3" alt="Imagen secundaria" />
+          @if (detail.img2) {
+            <img [src]="detail.img2" alt="Imagen secundaria" />
+          }
+          @if (detail.img3) {
+            <img [src]="detail.img3" alt="Imagen secundaria" />
+          }
         </div>
       </div>
     </div>

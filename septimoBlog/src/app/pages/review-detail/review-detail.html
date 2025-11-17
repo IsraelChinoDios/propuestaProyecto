@@ -1,4 +1,12 @@
-@if (detail(); as movie) {
+@if (loading()) {
+  <section class="movie-container empty">
+    <p>Cargando película...</p>
+  </section>
+} @else if (error()) {
+  <section class="movie-container empty">
+    <p>{{ error() }}</p>
+  </section>
+} @else if (detail(); as movie) {
   <section class="movie-container">
     <div class="movie-left">
       <img [src]="movie.poster" [alt]="movie.nombrePeli" class="poster" />
@@ -24,10 +32,54 @@
       <h1 class="movie-title">{{ movie.nombrePeli }}</h1>
       <h2 class="movie-year">{{ movie.ano }}</h2>
       <p class="synopsis">{{ movie.sinopsis }}</p>
+      <div class="leave-review">
+        @if (authService.isAuthenticated()) {
+          @if (!showForm()) {
+            <button type="button" class="botonResenar" (click)="toggleForm()">Dejar reseña</button>
+          } @else {
+            <div class="review-form">
+              <label for="calificacion">Calificación (1-10)</label>
+              <input id="calificacion" name="calificacion" type="number" min="1" max="10" [(ngModel)]="formCalificacion" />
+
+              <label for="resena">Reseña</label>
+              <textarea id="resena" name="resena" rows="6" [(ngModel)]="formResena"></textarea>
+
+              <div class="button-container">
+                <button type="button" class="btn btn-submit" (click)="submitReview()" [disabled]="submitting()">Enviar</button>
+                <button type="button" class="btn btn-cancel" (click)="cancelForm()" [disabled]="submitting()">Cancelar</button>
+              </div>
+
+              @if (feedback()) {
+                <div class="form-feedback">{{ feedback() }}</div>
+              }
+            </div>
+          }
+        } @else {
+          <p class="login-required">Inicia sesión para dejar una reseña</p>
+        }
+      </div>
+
+      <section class="reviews-list-section">
+        <h3>Reseñas recientes</h3>
+        @if (movie.resenas?.length) {
+          <div class="reviews-list">
+            @for (rev of movie.resenas; track rev._id) {
+              <article class="review">
+                <div class="review-meta">
+                  <strong>{{ reviewerName(rev) }}</strong>
+                  <span class="review-date">{{ rev.fechaPublicacion ? (rev.fechaPublicacion | date) : '' }}</span>
+                </div>
+                <div class="rating-review">
+                  <div class="rating-score">{{ rev.calificacion ?? '-' }}</div>
+                </div>
+                <p class="review-text">{{ rev.resena }}</p>
+              </article>
+            }
+          </div>
+        } @else {
+          <p>No hay reseñas todavía.</p>
+        }
+      </section>
     </div>
-  </section>
-} @else {
-  <section class="movie-container empty">
-    <p>Reseña no disponible.</p>
   </section>
 }

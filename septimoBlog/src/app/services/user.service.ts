@@ -17,4 +17,8 @@ export class UserService {
       .patch<UserResponse>(`${this.apiUrl}/users/${id}`, payload)
       .pipe(map((res) => res.user));
   }
+
+  getUserReviewsCount(userId: string) {
+    return this.http.get<{ count: number }>(`${this.apiUrl}/users/${userId}/reviews-count`);
+  }
 }

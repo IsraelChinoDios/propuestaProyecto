@@ -26,7 +26,13 @@ export interface MovieReviewResponse {
   actores: string[];
   genero: string;
   poster: string;
-  resenas?: string[];
+  resenas?: Array<{
+    _id: string;
+    idUsuario?: { _id?: string; nombre?: string } | string | null;
+    resena?: string;
+    calificacion?: number;
+    fechaPublicacion?: string;
+  }>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -51,6 +57,10 @@ export class ReviewService {
 
   getMovieReview(id: string): Observable<MovieReviewResponse> {
     return this.http.get<MovieReviewResponse>(`${this.apiUrl}/movie-reviews/${id}`);
+  }
+
+  postReview(movieId: string, payload: { idUsuario: string; resena: string; calificacion: number }) {
+    return this.http.post(`${this.apiUrl}/movie-reviews/${movieId}/reviews`, payload);
   }
 
   private fileToBase64(file: File): Promise<string> {

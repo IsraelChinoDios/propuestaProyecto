@@ -1,5 +1,7 @@
 ﻿const router = require('express').Router();
 const MovieReview = require('../models/movieReview.model');
+const Review = require('../models/review.model');
+const User = require('../models/user.model');
 
 const normalizeList = (value) => {
   if (!value) return [];
@@ -21,11 +23,55 @@ router.get('/', async (_req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const movie = await MovieReview.findById(req.params.id);
+    const movie = await MovieReview.findById(req.params.id).populate({
+      path: 'resenas',
+      populate: { path: 'idUsuario', select: 'nombre' }
+    });
     if (!movie) {
       return res.status(404).json({ message: 'Película no encontrada' });
     }
     res.json(movie);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST a new review for a movie and update movie's average score
+router.post('/:id/reviews', async (req, res, next) => {
+  try {
+    const movie = await MovieReview.findById(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+
+    const { idUsuario, resena, calificacion } = req.body;
+    if (!idUsuario || !resena || calificacion === undefined) {
+      return res.status(400).json({ message: 'Faltan campos obligatorios: idUsuario, resena, calificacion' });
+    }
+
+    // ensure user exists (optional, but helps keep data integrity)
+    const user = await User.findById(idUsuario);
+    if (!user) {
+      return res.status(400).json({ message: 'Usuario no encontrado' });
+    }
+
+    const newReview = await Review.create({ idUsuario, resena, calificacion: Number(calificacion) });
+    movie.resenas = movie.resenas || [];
+    movie.resenas.push(newReview._id);
+
+    // Populate the in-memory movie's reviews (includes the newly pushed id)
+    await movie.populate({ path: 'resenas' });
+    const allReviews = movie.resenas || [];
+
+    // Calculate average from populated review documents
+    const sum = allReviews.reduce((s, r) => s + (r.calificacion ?? 0), 0);
+    const avg = allReviews.length ? sum / allReviews.length : 0;
+
+    // Update and save movie once
+    movie.calificacionGeneral = avg;
+    await movie.save();
+
+    res.status(201).json({ review: newReview, movie });
   } catch (error) {
     next(error);
   }

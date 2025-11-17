@@ -1,13 +1,17 @@
 ﻿<section class="article-create">
   <h1>CREAR PELÍCULA PARA RESEÑAR</h1>
 
-  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
-  <div class="modal" *ngIf="success">
-    <div class="modal-content">
-      <p>Película creada para reseñar.</p>
-      <button type="button" (click)="closeSuccess()">Aceptar</button>
+  @if (feedback) {
+    <p class="feedback">{{ feedback }}</p>
+  }
+  @if (success) {
+    <div class="modal">
+      <div class="modal-content">
+        <p>Película creada para reseñar.</p>
+        <button type="button" (click)="closeSuccess()">Aceptar</button>
+      </div>
     </div>
-  </div>
+  }
 
   <form class="article-form" (ngSubmit)="submit()">
     <div class="form-row">

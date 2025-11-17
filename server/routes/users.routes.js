@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const User = require('../models/user.model');
+const Review = require('../models/review.model');
 
 const sanitizeUser = (userDoc) => {
   const user = userDoc.toObject();
@@ -19,6 +20,16 @@ const normalizeGeneros = (generos) => {
     .map((g) => g.trim())
     .filter(Boolean);
 };
+
+// Get count of reviews by user
+router.get('/:id/reviews-count', async (req, res, next) => {
+  try {
+    const count = await Review.countDocuments({ idUsuario: req.params.id });
+    res.json({ count });
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.patch('/:id', async (req, res, next) => {
   try {

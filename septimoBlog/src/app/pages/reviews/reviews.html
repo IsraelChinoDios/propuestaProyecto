@@ -8,10 +8,15 @@
   </div>
 </section>
 
-<div class="feedback" *ngIf="error">{{ error }}</div>
-<div class="loading" *ngIf="loading && !error">Cargando películas...</div>
+@if (error) {
+  <div class="feedback">{{ error }}</div>
+}
+@if (loading && !error) {
+  <div class="loading">Cargando películas...</div>
+}
 
-<section class="reviews-section" *ngIf="!loading && !error">
+@if (!loading && !error) {
+  <section class="reviews-section">
   @if (!reviews.length) {
     <p>No hay películas disponibles para reseñar.</p>
   } @else {
@@ -29,4 +34,5 @@
       </button>
     </div>
   }
-</section>
+  </section>
+}

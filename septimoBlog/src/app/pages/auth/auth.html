@@ -1,7 +1,9 @@
 <section class="auth-container">
   <h1>Se parte de <span>el séptimo blog</span></h1>
 
-  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+  @if (feedback) {
+    <p class="feedback">{{ feedback }}</p>
+  }
 
   <div class="forms-wrapper">
     <div class="form-card">

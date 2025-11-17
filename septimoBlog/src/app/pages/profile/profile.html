@@ -8,8 +8,8 @@
       </button>
     </div>
     <div class="stats">
-      <a class="stat-button" routerLink="/resenas">Reseñas ({{ user.idResenas }})</a>
-      <a class="stat-button" routerLink="/mis-articulos">Artículos ({{ user.idArticulos }})</a>
+      <a class="stat-button" routerLink="/resenas">Reseñas ({{ reviewCount() }})</a>
+      <a class="stat-button" routerLink="/mis-articulos">Artículos ({{ articleCount() }})</a>
       @if (user.rol === 'admin') {
         <a class="stat-button" routerLink="/resenas/crear">Añadir reseñas</a>
       }

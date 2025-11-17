@@ -1,8 +1,10 @@
-import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { ArticleService } from '../../services/article.service';
+import { ReviewService } from '../../services/review.service';
 import { UserSession } from '../../models/article';
 
 @Component({
@@ -12,12 +14,12 @@ import { UserSession } from '../../models/article';
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-export class ProfileComponent {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-    private readonly router: Router
-  ) {}
+export class ProfileComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly articleService = inject(ArticleService);
+  private readonly reviewService = inject(ReviewService);
+  private readonly router = inject(Router);
 
   @Input({ required: true }) user!: UserSession;
   @ViewChild('avatarInput') avatarInput?: ElementRef<HTMLInputElement>;
@@ -26,6 +28,26 @@ export class ProfileComponent {
   protected editingGeneros = false;
   protected sobreMiDraft = '';
   protected generosDraft = '';
+  protected articleCount = signal(0);
+  protected reviewCount = signal(0);
+
+  ngOnInit(): void {
+    this.loadStats();
+  }
+
+  private loadStats(): void {
+    // Load user's articles count
+    this.articleService.getArticlesByUser(this.user._id).subscribe({
+      next: (articles) => this.articleCount.set(articles.length),
+      error: () => this.articleCount.set(0)
+    });
+
+    // Load user's reviews count from direct endpoint
+    this.userService.getUserReviewsCount(this.user._id).subscribe({
+      next: (res) => this.reviewCount.set(res.count),
+      error: () => this.reviewCount.set(0)
+    });
+  }
 
   protected toggleSobreMi(): void {
     this.editingSobreMi = !this.editingSobreMi;
