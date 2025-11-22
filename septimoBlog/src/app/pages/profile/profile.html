@@ -11,7 +11,8 @@
       <a class="stat-button" routerLink="/resenas">Reseñas ({{ reviewCount() }})</a>
       <a class="stat-button" routerLink="/mis-articulos">Artículos ({{ articleCount() }})</a>
       @if (user.rol === 'admin') {
-        <a class="stat-button" routerLink="/resenas/crear">Añadir reseñas</a>
+        <a class="stat-button" routerLink="/resenas/crear">Añadir peliculas</a>
+        <a class="stat-button admin-btn" routerLink="/admin">Panel de Administrador</a>
       }
       <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
     </div>

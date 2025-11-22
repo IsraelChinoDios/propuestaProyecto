@@ -9,12 +9,18 @@ const sanitizeUser = (userDoc) => {
 
 router.post('/login', async (req, res, next) => {
   try {
-    const { nombre, contrasena } = req.body;
-    if (!nombre || !contrasena) {
-      return res.status(400).json({ message: 'Nombre y contraseña son requeridos.' });
+    const { nombre, correo, contrasena } = req.body;
+    if ((!nombre && !correo) || !contrasena) {
+      return res.status(400).json({ message: 'Identificador (nombre o correo) y contraseña son requeridos.' });
     }
 
-    const user = await User.findOne({ nombre });
+    let user;
+    if (correo) {
+      user = await User.findOne({ correo });
+    } else {
+      user = await User.findOne({ nombre });
+    }
+
     if (!user || user.contrasena !== contrasena) {
       return res.status(401).json({ message: 'Credenciales inválidas.' });
     }
@@ -27,7 +33,7 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { nombre, contrasena, generosFav = [], sobreMi } = req.body;
+    const { nombre, correo, contrasena, generosFav = [], sobreMi, rol } = req.body;
     if (!nombre || !contrasena) {
       return res.status(400).json({ message: 'Nombre y contraseña son requeridos.' });
     }
@@ -37,12 +43,15 @@ router.post('/register', async (req, res, next) => {
       return res.status(409).json({ message: 'Ese nombre ya está registrado.' });
     }
 
+    const userRol = rol && (rol === 'admin' || rol === 'usuario') ? rol : 'usuario';
+
     const user = await User.create({
       nombre,
+      correo: correo || '',
       contrasena,
       generosFav,
       sobreMi,
-      rol: 'usuario'
+      rol: userRol
     });
 
     res.status(201).json({ user: sanitizeUser(user) });

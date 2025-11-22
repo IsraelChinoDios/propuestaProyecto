@@ -21,6 +21,16 @@ const normalizeGeneros = (generos) => {
     .filter(Boolean);
 };
 
+// Get all users
+router.get('/', async (req, res, next) => {
+  try {
+    const users = await User.find().select('-contrasena');
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get count of reviews by user
 router.get('/:id/reviews-count', async (req, res, next) => {
   try {
@@ -33,7 +43,7 @@ router.get('/:id/reviews-count', async (req, res, next) => {
 
 router.patch('/:id', async (req, res, next) => {
   try {
-    const { sobreMi, generosFav, avatar } = req.body;
+    const { sobreMi, generosFav, avatar, rol } = req.body;
     const payload = {};
 
     if (sobreMi !== undefined) {
@@ -46,6 +56,13 @@ router.patch('/:id', async (req, res, next) => {
 
     if (avatar !== undefined) {
       payload.avatar = avatar;
+    }
+
+    if (rol !== undefined) {
+      if (rol !== 'admin' && rol !== 'usuario') {
+        return res.status(400).json({ message: 'Rol inválido. Debe ser "admin" o "usuario".' });
+      }
+      payload.rol = rol;
     }
 
     if (!Object.keys(payload).length) {
@@ -62,6 +79,20 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     res.json({ user: sanitizeUser(updated) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    // Delete associated reviews
+    await Review.deleteMany({ idUsuario: req.params.id });
+    res.json({ message: 'Usuario eliminado correctamente', user: sanitizeUser(user) });
   } catch (error) {
     next(error);
   }

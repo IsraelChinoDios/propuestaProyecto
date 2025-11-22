@@ -35,7 +35,9 @@ export class App {
   }
 
   private updateActiveSection(url: string): void {
-    if (url.startsWith('/mis-articulos') || url.startsWith('/perfil')) {
+    if (url.startsWith('/admin')) {
+      this.currentSection.set('admin');
+    } else if (url.startsWith('/mis-articulos') || url.startsWith('/perfil')) {
       this.currentSection.set('perfil');
     } else if (url.startsWith('/articulos')) {
       this.currentSection.set('articulos');

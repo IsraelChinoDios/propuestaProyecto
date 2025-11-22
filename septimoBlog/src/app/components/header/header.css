@@ -55,6 +55,21 @@
   border-radius: 999px;
 }
 
+.menu li.admin-link a {
+  color: #282828;
+  font-weight: 600;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.menu li.admin-link a:hover {
+  color: #f5c73c;
+  transform: translateY(-2px);
+}
+
+.menu li.admin-link.active a {
+  color: #f5c73c;
+}
+
 .menu-icon button {
   border: none;
   background-color: #f5c73c;

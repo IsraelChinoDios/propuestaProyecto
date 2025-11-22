@@ -70,6 +70,14 @@ export class ArticleService {
     return this.http.get<ArticleDetailResponse>(`${this.apiUrl}/articles/${id}`);
   }
 
+  deleteArticle(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/articles/${id}`);
+  }
+
+  updateArticle(id: string, payload: any): Observable<UserArticleResponse> {
+    return this.http.put<UserArticleResponse>(`${this.apiUrl}/articles/${id}`, payload);
+  }
+
   private filesToBase64(files: File[]): Promise<string[]> {
     const promises = files.map(
       (file) =>

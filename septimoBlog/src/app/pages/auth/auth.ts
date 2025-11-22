@@ -16,7 +16,7 @@ export class AuthComponent {
   private readonly router = inject(Router);
 
   protected loginData = {
-    nombre: '',
+    identifier: '',
     contrasena: ''
   };
 
@@ -29,7 +29,7 @@ export class AuthComponent {
 
   protected onLogin(): void {
     this.feedback = '';
-    this.authService.login(this.loginData.nombre, this.loginData.contrasena).subscribe({
+    this.authService.login(this.loginData.identifier, this.loginData.contrasena).subscribe({
       next: () => {
         this.router.navigate(['/perfil']);
       },

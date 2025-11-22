@@ -96,4 +96,82 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const payload = { ...req.body };
+    
+    if (payload.ano) payload.ano = Number(payload.ano);
+    if (payload.calificacionGeneral !== undefined) {
+      payload.calificacionGeneral = Number(payload.calificacionGeneral);
+    }
+    if (payload.actores) {
+      payload.actores = normalizeList(payload.actores);
+    }
+    
+    const movie = await MovieReview.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true
+    });
+    
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+    
+    res.json(movie);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE a specific review from a movie and recalculate average
+router.delete('/:movieId/reviews/:reviewId', async (req, res, next) => {
+  try {
+    const { movieId, reviewId } = req.params;
+    const movie = await MovieReview.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+
+    // Remove review ID from movie's resenas array
+    movie.resenas = movie.resenas.filter((id) => id.toString() !== reviewId);
+
+    // Delete the review document
+    const deletedReview = await Review.findByIdAndDelete(reviewId);
+    if (!deletedReview) {
+      return res.status(404).json({ message: 'Reseña no encontrada' });
+    }
+
+    // Recalculate average rating
+    if (movie.resenas.length > 0) {
+      await movie.populate('resenas');
+      const sum = movie.resenas.reduce((s, r) => s + (r.calificacion ?? 0), 0);
+      movie.calificacionGeneral = sum / movie.resenas.length;
+    } else {
+      movie.calificacionGeneral = 0;
+    }
+
+    await movie.save();
+    res.json({ message: 'Reseña eliminada correctamente', review: deletedReview, movie });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const movie = await MovieReview.findByIdAndDelete(req.params.id);
+    if (!movie) {
+      return res.status(404).json({ message: 'Película no encontrada' });
+    }
+    // Delete associated reviews
+    if (movie.resenas && movie.resenas.length > 0) {
+      await Review.deleteMany({ _id: { $in: movie.resenas } });
+    }
+    res.json({ message: 'Película eliminada correctamente', movie });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

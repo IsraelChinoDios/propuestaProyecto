@@ -63,6 +63,20 @@ export class ReviewService {
     return this.http.post(`${this.apiUrl}/movie-reviews/${movieId}/reviews`, payload);
   }
 
+  deleteMovie(id: string): Observable<{ message: string; movie: MovieReviewResponse }> {
+    return this.http.delete<{ message: string; movie: MovieReviewResponse }>(`${this.apiUrl}/movie-reviews/${id}`);
+  }
+
+  deleteReview(movieId: string, reviewId: string): Observable<{ message: string; review: any; movie: MovieReviewResponse }> {
+    return this.http.delete<{ message: string; review: any; movie: MovieReviewResponse }>(
+      `${this.apiUrl}/movie-reviews/${movieId}/reviews/${reviewId}`
+    );
+  }
+
+  updateMovie(id: string, payload: Partial<MovieCreatePayload>): Observable<MovieReviewResponse> {
+    return this.http.put<MovieReviewResponse>(`${this.apiUrl}/movie-reviews/${id}`, payload);
+  }
+
   private fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

@@ -1,0 +1,732 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <div class="header-content">
+      <h1>Panel de Administrador</h1>
+      <button type="button" class="back-button" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+        Volver al perfil
+      </button>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+      <div class="stat-card">
+        <div class="stat-number">{{ totalMovies() }}</div>
+        <div class="stat-label">Películas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ totalArticles() }}</div>
+        <div class="stat-label">Artículos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ totalUsers() }}</div>
+        <div class="stat-label">Usuarios</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ totalReviews() }}</div>
+        <div class="stat-label">Reseñas</div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button 
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab() === 'movies'"
+        (click)="setActiveTab('movies')">
+        <span class="material-icons">movie</span>
+        Películas
+      </button>
+      <button 
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab() === 'articles'"
+        (click)="setActiveTab('articles')">
+        <span class="material-icons">article</span>
+        Artículos
+      </button>
+      <button 
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab() === 'users'"
+        (click)="setActiveTab('users')">
+        <span class="material-icons">people</span>
+        Usuarios
+      </button>
+      <button 
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab() === 'reviews'"
+        (click)="setActiveTab('reviews')">
+        <span class="material-icons">rate_review</span>
+        Reseñas
+      </button>
+    </div>
+
+    <!-- Error Message -->
+    @if (error()) {
+      <div class="error-message">
+        <span class="material-icons">error</span>
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Cargando datos...</p>
+      </div>
+    } @else {
+      <!-- Movies Tab -->
+      @if (activeTab() === 'movies') {
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>Películas</h2>
+            <button type="button" class="add-btn" (click)="openCreateMovieModal()" title="Crear nueva película">
+              <span class="material-icons">add</span>
+              Crear Película
+            </button>
+          </div>
+          @if (movies().length > 0) {
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Título</th>
+                    <th>Director</th>
+                    <th>Año</th>
+                    <th>Reseñas</th>
+                    <th>Calificación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (movie of movies(); track movie._id) {
+                    <tr>
+                      <td class="title-cell">{{ movie.nombrePeli }}</td>
+                      <td>{{ movie.director }}</td>
+                      <td>{{ movie.ano }}</td>
+                      <td class="center">{{ getReviewCount(movie) }}</td>
+                      <td class="center">
+                        @if (movie.calificacionGeneral) {
+                          <span class="rating-badge">{{ movie.calificacionGeneral.toFixed(2) }}</span>
+                        } @else {
+                          <span class="no-rating">Sin reseñas</span>
+                        }
+                      </td>
+                      <td class="actions-cell">
+                        <button type="button" class="action-btn edit-btn" (click)="openEditMovieModal(movie)" title="Editar">
+                          <span class="material-icons">edit</span>
+                        </button>
+                        <button type="button" class="action-btn delete-btn" (click)="deleteMovie(movie._id)" title="Eliminar">
+                          <span class="material-icons">delete</span>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <span class="material-icons">movie</span>
+              <p>No hay películas registradas</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Articles Tab -->
+      @if (activeTab() === 'articles') {
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>Artículos</h2>
+            <button type="button" class="add-btn" (click)="openCreateArticleModal()" title="Crear nuevo artículo">
+              <span class="material-icons">add</span>
+              Crear Artículo
+            </button>
+          </div>
+          @if (articles().length > 0) {
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Título</th>
+                    <th>Película</th>
+                    <th>Autor</th>
+                    <th>Fecha de Publicación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (article of articles(); track article._id) {
+                    <tr>
+                      <td class="title-cell">{{ article.titulo }}</td>
+                      <td>{{ article.nombrePeli || 'N/A' }}</td>
+                      <td>{{ getAuthorName(article.idUsuario) }}</td>
+                      <td>{{ article.fechaPublicacion ? (article.fechaPublicacion | date: 'short') : (article.createdAt | date: 'short') }}</td>
+                      <td class="actions-cell">
+                        <button type="button" class="action-btn edit-btn" (click)="openEditArticleModal(article)" title="Editar">
+                          <span class="material-icons">edit</span>
+                        </button>
+                        <button type="button" class="action-btn delete-btn" (click)="deleteArticle(article._id)" title="Eliminar">
+                          <span class="material-icons">delete</span>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <span class="material-icons">article</span>
+              <p>No hay artículos registrados</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Users Tab -->
+      @if (activeTab() === 'users') {
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>Usuarios</h2>
+            <button type="button" class="add-btn" (click)="openCreateUserModal()" title="Agregar nuevo usuario">
+              <span class="material-icons">add</span>
+              Agregar Usuario
+            </button>
+          </div>
+          @if (users().length > 0) {
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (user of users(); track user._id) {
+                    <tr>
+                      <td>{{ user.nombre }}</td>
+                      <td>
+                        <span class="role-badge" [class.admin]="user.rol === 'admin'">
+                          {{ user.rol }}
+                        </span>
+                      </td>
+                      <td class="actions-cell">
+                        <button type="button" class="action-btn edit-btn" (click)="openEditUserModal(user)" title="Editar rol">
+                          <span class="material-icons">edit</span>
+                        </button>
+                        <button type="button" class="action-btn delete-btn" (click)="deleteUser(user._id)" title="Eliminar" [disabled]="isLastAdmin(user._id)">
+                          <span class="material-icons">delete</span>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <span class="material-icons">people</span>
+              <p>No hay usuarios registrados</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Reviews Tab -->
+      @if (activeTab() === 'reviews') {
+        <div class="tab-content">
+          <div class="tab-header">
+            <h2>Reseñas</h2>
+            <button type="button" class="add-btn" (click)="openCreateReviewModal()" title="Agregar nueva reseña">
+              <span class="material-icons">add</span>
+              Agregar Reseña
+            </button>
+          </div>
+          @if (reviews().length > 0) {
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Película</th>
+                    <th>Autor</th>
+                    <th>Calificación</th>
+                    <th>Reseña</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (review of reviews(); track review._id) {
+                    <tr>
+                      <td class="title-cell">{{ review.movieTitle }}</td>
+                      <td>{{ getAuthorName(review.idUsuario) }}</td>
+                      <td class="center">
+                        <span class="rating-badge">{{ review.calificacion }}/10</span>
+                      </td>
+                      <td class="review-text">{{ (review.resena || '') | slice:0:80 }}{{ (review.resena || '').length > 80 ? '...' : '' }}</td>
+                      <td>{{ review.fechaPublicacion ? (review.fechaPublicacion | date: 'short') : 'N/A' }}</td>
+                      <td class="actions-cell">
+                        <button type="button" class="action-btn view-btn" (click)="openReviewModal(review)" title="Ver reseña completa">
+                          <span class="material-icons">visibility</span>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <span class="material-icons">rate_review</span>
+              <p>No hay reseñas registradas</p>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Review Modal -->
+  @if (showReviewModal()) {
+    <div class="modal-overlay" (click)="closeReviewModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Detalles de la Reseña</h2>
+          <button type="button" class="close-btn" (click)="closeReviewModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        @if (selectedReview()) {
+          <div class="modal-body">
+            <div class="review-info">
+              <div class="info-row">
+                <span class="label">Película:</span>
+                <span class="value">{{ selectedReview()?.movieTitle }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Autor:</span>
+                <span class="value">{{ getAuthorName(selectedReview()?.idUsuario) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Calificación:</span>
+                <span class="value">
+                  <span class="rating-badge">{{ selectedReview()?.calificacion }}/10</span>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="label">Fecha:</span>
+                <span class="value">{{ selectedReview()?.fechaPublicacion ? (selectedReview()?.fechaPublicacion | date: 'short') : 'N/A' }}</span>
+              </div>
+            </div>
+
+            <div class="review-text-section">
+              <h3>Reseña</h3>
+              <p>{{ selectedReview()?.resena }}</p>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="action-btn edit-btn" (click)="editReview(selectedReview()?._id || '')">
+              <span class="material-icons">edit</span>
+              Editar
+            </button>
+            <button type="button" class="action-btn delete-btn" (click)="deleteReview(selectedReview()?._id || '')">
+              <span class="material-icons">delete</span>
+              Eliminar
+            </button>
+            <button type="button" class="action-btn close-action-btn" (click)="closeReviewModal()">
+              <span class="material-icons">close</span>
+              Cerrar
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Create Review Modal -->
+  @if (showCreateReviewModal()) {
+    <div class="modal-overlay" (click)="closeCreateReviewModal()">
+      <div class="modal-content modal-form" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Crear Nueva Reseña</h2>
+          <button type="button" class="close-btn" (click)="closeCreateReviewModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body form-body">
+          <div class="form-group">
+            <label for="movie-select">Película *</label>
+            <select 
+              id="movie-select"
+              [value]="createReviewForm().movieId"
+              (change)="updateCreateReviewForm('movieId', $event)">
+              <option value="">Selecciona una película</option>
+              @for (movie of movies(); track movie._id) {
+                <option [value]="movie._id">{{ movie.nombrePeli }} ({{ movie.ano }})</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="rating-input">Calificación (1-10) *</label>
+            <div class="rating-input-group">
+              <input 
+                id="rating-input"
+                type="number" 
+                min="1" 
+                max="10" 
+                [value]="createReviewForm().calificacion"
+                (change)="updateCreateReviewForm('calificacion', $event)"
+                class="rating-input">
+              <span class="rating-display">/10</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="review-textarea">Reseña *</label>
+            <textarea 
+              id="review-textarea"
+              [value]="createReviewForm().resena"
+              (input)="updateCreateReviewForm('resena', $event)"
+              placeholder="Escribe tu reseña aquí..."
+              rows="6"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="action-btn save-btn" (click)="createReview()">
+            <span class="material-icons">check</span>
+            Guardar Reseña
+          </button>
+          <button type="button" class="action-btn close-action-btn" (click)="closeCreateReviewModal()">
+            <span class="material-icons">close</span>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Create/Edit Movie Modal -->
+  @if (showCreateMovieModal() || showEditMovieModal()) {
+    <div class="modal-overlay" (click)="closeCreateMovieModal(); closeEditMovieModal()">
+      <div class="modal-content modal-form movie-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ editMovieData() ? 'Editar Película' : 'Crear Nueva Película' }}</h2>
+          <button type="button" class="close-btn" (click)="closeCreateMovieModal(); closeEditMovieModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body form-body">
+          <div class="form-group">
+            <label for="movie-name">Película *</label>
+            <input 
+              id="movie-name"
+              type="text" 
+              [value]="createMovieForm().nombrePeli"
+              (input)="updateCreateMovieForm('nombrePeli', $event)"
+              placeholder="Nombre de la película">
+          </div>
+
+          <div class="form-group">
+            <label for="movie-year">Año de Estreno *</label>
+            <input 
+              id="movie-year"
+              type="number" 
+              [value]="createMovieForm().anoEstreno"
+              (input)="updateCreateMovieForm('anoEstreno', $event)"
+              placeholder="Año">
+          </div>
+
+          <div class="form-group">
+            <label for="movie-director">Director(es) *</label>
+            <input 
+              id="movie-director"
+              type="text" 
+              [value]="createMovieForm().director"
+              (input)="updateCreateMovieForm('director', $event)"
+              placeholder="Separados por comas">
+          </div>
+
+          <div class="form-group">
+            <label for="movie-writer">Escritor(es) *</label>
+            <input 
+              id="movie-writer"
+              type="text" 
+              [value]="createMovieForm().escritor"
+              (input)="updateCreateMovieForm('escritor', $event)"
+              placeholder="Separados por comas">
+          </div>
+
+          <div class="form-group">
+            <label for="movie-actors">Actor(es) *</label>
+            <input 
+              id="movie-actors"
+              type="text" 
+              [value]="createMovieForm().actores"
+              (input)="updateCreateMovieForm('actores', $event)"
+              placeholder="Separados por comas">
+          </div>
+
+          <div class="form-group">
+            <label for="movie-genre">Género(s) *</label>
+            <input 
+              id="movie-genre"
+              type="text" 
+              [value]="createMovieForm().genero"
+              (input)="updateCreateMovieForm('genero', $event)"
+              placeholder="Separados por comas">
+          </div>
+
+          <div class="form-group">
+            <label for="movie-synopsis">Sinopsis *</label>
+            <textarea 
+              id="movie-synopsis"
+              [value]="createMovieForm().sinopsis"
+              (input)="updateCreateMovieForm('sinopsis', $event)"
+              placeholder="Descripción de la película"
+              rows="6"></textarea>
+          </div>
+
+          <div class="form-group" *ngIf="!editMovieData()">
+            <label for="movie-poster">Póster (Obligatorio) *</label>
+            <input 
+              id="movie-poster"
+              type="file" 
+              accept="image/*"
+              (change)="updateCreateMovieForm('poster', $event)">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="action-btn save-btn" (click)="saveMovie()">
+            <span class="material-icons">check</span>
+            {{ editMovieData() ? 'Actualizar' : 'Crear' }} Película
+          </button>
+          <button type="button" class="action-btn close-action-btn" (click)="closeCreateMovieModal(); closeEditMovieModal()">
+            <span class="material-icons">close</span>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Create/Edit Article Modal -->
+  @if (showCreateArticleModal() || showEditArticleModal()) {
+    <div class="modal-overlay" (click)="closeCreateArticleModal(); closeEditArticleModal()">
+      <div class="modal-content modal-form article-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ editArticleData() ? 'Editar Artículo' : 'Crear Nuevo Artículo' }}</h2>
+          <button type="button" class="close-btn" (click)="closeCreateArticleModal(); closeEditArticleModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body form-body">
+          <div class="form-group">
+            <label for="article-title">Título *</label>
+            <input 
+              id="article-title"
+              type="text" 
+              [value]="createArticleForm().titulo"
+              (input)="updateCreateArticleForm('titulo', $event)"
+              placeholder="Título del artículo">
+          </div>
+
+          <div class="form-group">
+            <label for="article-movie">Película / Corto *</label>
+            <input 
+              id="article-movie"
+              type="text" 
+              [value]="createArticleForm().nombrePeli"
+              (input)="updateCreateArticleForm('nombrePeli', $event)"
+              placeholder="Nombre de la película o corto">
+          </div>
+
+          <div class="form-group">
+            <label for="article-year">Año de Estreno *</label>
+            <input 
+              id="article-year"
+              type="number" 
+              [value]="createArticleForm().anoEstreno"
+              (input)="updateCreateArticleForm('anoEstreno', $event)"
+              placeholder="Año">
+          </div>
+
+          <div class="form-group">
+            <label for="article-directors">Director(es) *</label>
+            <input 
+              id="article-directors"
+              type="text" 
+              [value]="createArticleForm().directores"
+              (input)="updateCreateArticleForm('directores', $event)"
+              placeholder="Separados por comas">
+          </div>
+
+          <div class="form-group">
+            <label for="article-body">Cuerpo del Artículo *</label>
+            <textarea 
+              id="article-body"
+              [value]="createArticleForm().cuerpo"
+              (input)="updateCreateArticleForm('cuerpo', $event)"
+              placeholder="Contenido del artículo"
+              rows="8"></textarea>
+          </div>
+
+          <div class="form-group" *ngIf="!editArticleData()">
+            <label for="article-images">Imágenes (Opcional)</label>
+            <input 
+              id="article-images"
+              type="file" 
+              multiple 
+              accept="image/*"
+              (change)="updateCreateArticleForm('imagenes', $event)">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="action-btn save-btn" (click)="saveArticle()">
+            <span class="material-icons">check</span>
+            {{ editArticleData() ? 'Actualizar' : 'Crear' }} Artículo
+          </button>
+          <button type="button" class="action-btn close-action-btn" (click)="closeCreateArticleModal(); closeEditArticleModal()">
+            <span class="material-icons">close</span>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Edit User Modal -->
+  @if (showEditUserModal()) {
+    <div class="modal-overlay" (click)="closeEditUserModal()">
+      <div class="modal-content modal-form" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Editar Usuario</h2>
+          <button type="button" class="close-btn" (click)="closeEditUserModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        @if (editUserData()) {
+          <div class="modal-body form-body">
+            <div class="form-group">
+              <label for="user-name">Nombre</label>
+              <input 
+                id="user-name"
+                type="text" 
+                [value]="editUserData()?.nombre"
+                disabled
+                class="form-input-disabled">
+            </div>
+
+            <div class="form-group">
+              <label for="user-role">Rol *</label>
+              <select 
+                id="user-role"
+                [value]="editUserForm().rol"
+                (change)="updateUserRole('rol', $event)">
+                <option value="usuario">Usuario</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            @if (isEditingLastAdmin()) {
+              <div class="warning-message">
+                <span class="material-icons">warning</span>
+                <p>Este es el único administrador. No puedes cambiar su rol.</p>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="action-btn save-btn" (click)="saveUserChanges()" 
+              [disabled]="isEditingLastAdmin()">
+              <span class="material-icons">check</span>
+              Guardar Cambios
+            </button>
+            <button type="button" class="action-btn close-action-btn" (click)="closeEditUserModal()">
+              <span class="material-icons">close</span>
+              Cancelar
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Create User Modal -->
+  @if (showCreateUserModal()) {
+    <div class="modal-overlay" (click)="closeCreateUserModal()">
+      <div class="modal-content modal-form" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Crear Nuevo Usuario</h2>
+          <button type="button" class="close-btn" (click)="closeCreateUserModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body form-body">
+          <div class="form-group">
+            <label for="new-user-name">Nombre de usuario *</label>
+            <input 
+              id="new-user-name"
+              type="text" 
+              [value]="createUserForm().nombre"
+              (input)="updateCreateUserForm('nombre', $event)"
+              placeholder="Nombre de usuario">
+          </div>
+
+
+          <div class="form-group">
+            <label for="new-user-password">Contraseña *</label>
+            <input 
+              id="new-user-password"
+              type="password" 
+              [value]="createUserForm().contrasena"
+              (input)="updateCreateUserForm('contrasena', $event)"
+              placeholder="Contraseña segura">
+          </div>
+
+          <div class="form-group">
+            <label for="new-user-role">Rol *</label>
+            <select 
+              id="new-user-role"
+              [value]="createUserForm().rol"
+              (change)="updateCreateUserForm('rol', $event)">
+              <option value="usuario">Usuario</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="action-btn save-btn" (click)="createUser()">
+            <span class="material-icons">check</span>
+            Crear Usuario
+          </button>
+          <button type="button" class="action-btn close-action-btn" (click)="closeCreateUserModal()">
+            <span class="material-icons">close</span>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

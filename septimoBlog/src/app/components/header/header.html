@@ -11,6 +11,11 @@
           <a [href]="item.url || '#'">{{ item.label }}</a>
         }
       </li>
+      @if (isAdmin) {
+        <li class="admin-link" [class.active]="'admin' === active">
+          <a routerLink="/admin">ADMIN</a>
+        </li>
+      }
       <li class="menu-icon">
         <button type="button" aria-label="Buscar">
           <img src="assets/Imagenes/search.png" alt="" />

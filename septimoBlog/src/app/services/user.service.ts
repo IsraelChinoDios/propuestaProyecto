@@ -21,4 +21,12 @@ export class UserService {
   getUserReviewsCount(userId: string) {
     return this.http.get<{ count: number }>(`${this.apiUrl}/users/${userId}/reviews-count`);
   }
+
+  getAllUsers() {
+    return this.http.get<any[]>(`${this.apiUrl}/users`);
+  }
+
+  deleteUser(id: string) {
+    return this.http.delete<{ message: string; user: UserSession }>(`${this.apiUrl}/users/${id}`);
+  }
 }

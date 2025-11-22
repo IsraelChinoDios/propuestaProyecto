@@ -10,6 +10,8 @@ interface AuthResponse {
 interface RegisterPayload {
   nombre: string;
   contrasena: string;
+  correo?: string;
+  rol?: 'admin' | 'usuario';
   generosFav?: string[];
   sobreMi?: string;
 }
@@ -24,9 +26,15 @@ export class AuthService {
   readonly currentUser = computed(() => this.userSignal());
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
 
-  login(nombre: string, contrasena: string) {
+  login(identifier: string, contrasena: string) {
+    const payload: any = { contrasena };
+    if (identifier && identifier.includes('@')) {
+      payload.correo = identifier;
+    } else {
+      payload.nombre = identifier;
+    }
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/auth/login`, { nombre, contrasena })
+      .post<AuthResponse>(`${this.apiUrl}/auth/login`, payload)
       .pipe(tap((res) => this.setUser(res.user)));
   }
 

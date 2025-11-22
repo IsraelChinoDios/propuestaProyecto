@@ -9,6 +9,7 @@ import { AuthComponent } from './pages/auth/auth';
 import { UserArticlesComponent } from './pages/user-articles/user-articles';
 import { ArticleCreateComponent } from './pages/article-create/article-create';
 import { ReviewCreateComponent } from './pages/review-create/review-create';
+import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'resenas/crear', component: ReviewCreateComponent },
   { path: 'resenas/:reviewId', component: ReviewDetailComponent },
   { path: 'perfil', component: ProfilePageComponent },
+  { path: 'admin', component: AdminDashboardComponent },
   { path: 'mis-articulos', component: UserArticlesComponent },
   { path: 'mis-articulos/crear', component: ArticleCreateComponent },
   { path: 'login', component: AuthComponent },

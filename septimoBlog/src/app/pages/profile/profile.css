@@ -64,6 +64,20 @@
   font-size: 1.1rem;
   text-decoration: none;
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-button:hover {
+  background-color: #404040;
+}
+
+.stat-button.admin-btn {
+  background-color: #f5c73c;
+  color: #000;
+}
+
+.stat-button.admin-btn:hover {
+  background-color: #ffd96f;
 }
 
 .profile-right {

@@ -46,6 +46,25 @@ textarea {
   font-family: inherit;
 }
 
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #f5c73c;
+  box-shadow: 0 0 8px rgba(245,199,60,0.12);
+}
+
 textarea {
   min-height: 260px;
   resize: none;
