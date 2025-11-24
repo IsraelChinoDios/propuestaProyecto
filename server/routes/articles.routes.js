@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Article = require('../models/article.model');
+const verifyToken = require('../middleware/auth.middleware');
 
 const normalizeDirectores = (directores) => {
   if (!directores) {
@@ -65,38 +66,53 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', verifyToken, async (req, res, next) => {
   try {
-    const article = await Article.create(buildPayload(req.body));
+    const payload = buildPayload(req.body);
+    payload.idUsuario = req.userId; // Assign current user as owner
+    const article = await Article.create(payload);
     res.status(201).json(article);
   } catch (error) {
     next(error);
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', verifyToken, async (req, res, next) => {
   try {
-    const article = await Article.findByIdAndUpdate(req.params.id, buildPayload(req.body), {
-      new: true,
-      runValidators: true
-    });
-
+    const article = await Article.findById(req.params.id);
     if (!article) {
       return res.status(404).json({ message: 'Article not found' });
     }
 
-    res.json(article);
+    // Check ownership or admin role
+    if (article.idUsuario.toString() !== req.userId && req.userRole !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: You are not the owner of this article.' });
+    }
+
+    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, buildPayload(req.body), {
+      new: true,
+      runValidators: true
+    });
+
+    res.json(updatedArticle);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', verifyToken, async (req, res, next) => {
   try {
-    const article = await Article.findByIdAndDelete(req.params.id);
+    const article = await Article.findById(req.params.id);
     if (!article) {
       return res.status(404).json({ message: 'Article not found' });
     }
+
+    // Check ownership or admin role
+    if (article.idUsuario.toString() !== req.userId && req.userRole !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: You are not the owner of this article.' });
+    }
+
+    await Article.findByIdAndDelete(req.params.id);
     res.status(204).end();
   } catch (error) {
     next(error);

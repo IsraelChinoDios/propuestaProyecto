@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/user.model');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const sanitizeUser = (userDoc) => {
   const user = userDoc.toObject();
@@ -21,11 +23,22 @@ router.post('/login', async (req, res, next) => {
       user = await User.findOne({ nombre });
     }
 
-    if (!user || user.contrasena !== contrasena) {
+    if (!user) {
       return res.status(401).json({ message: 'Credenciales inválidas.' });
     }
 
-    res.json({ user: sanitizeUser(user) });
+    const isMatch = await bcrypt.compare(contrasena, user.contrasena);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Credenciales inválidas.' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, rol: user.rol },
+      process.env.JWT_SECRET || 'secret_key_default',
+      { expiresIn: '24h' }
+    );
+
+    res.json({ user: sanitizeUser(user), token });
   } catch (error) {
     next(error);
   }
@@ -45,10 +58,13 @@ router.post('/register', async (req, res, next) => {
 
     const userRol = rol && (rol === 'admin' || rol === 'usuario') ? rol : 'usuario';
 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(contrasena, salt);
+
     const user = await User.create({
       nombre,
       correo: correo || '',
-      contrasena,
+      contrasena: hashedPassword,
       generosFav,
       sobreMi,
       rol: userRol
