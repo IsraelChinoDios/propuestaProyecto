@@ -51,16 +51,32 @@
 
       @if (editingGeneros) {
         <div class="edit-block">
-          <textarea [(ngModel)]="generosDraft" placeholder="Separados por coma"></textarea>
+          <div class="categories-grid">
+            @for (category of allCategories(); track category._id) {
+              <label class="category-checkbox">
+                <input 
+                  type="checkbox" 
+                  [checked]="isCategorySelected(category._id)"
+                  (change)="toggleCategory(category._id)">
+                <span>{{ category.nombre }}</span>
+              </label>
+            }
+          </div>
+          @if (generosFeedback()) {
+            <div class="feedback-banner" [class.error]="generosIsError()">{{ generosFeedback() }}</div>
+          }
           <div class="edit-actions">
-            <button type="button" (click)="saveGeneros()">Guardar</button>
-            <button type="button" (click)="toggleGeneros()">Cancelar</button>
+            <button type="button" class="save-btn" (click)="saveGeneros()" [disabled]="savingGeneros()">Guardar</button>
+            <button type="button" class="cancel-btn" (click)="toggleGeneros()" [disabled]="savingGeneros()">Cancelar</button>
           </div>
         </div>
       } @else {
         <div class="genres-list">
-          @for (genre of user.generosFav; track genre) {
-            <span class="genre-pill">{{ genre }}</span>
+          @for (genre of user.generosFav; track $index) {
+            <span class="genre-pill">{{ getGenreName(genre) }}</span>
+          }
+          @if (user.generosFav.length === 0) {
+            <p class="empty-genres">No has seleccionado géneros favoritos</p>
           }
         </div>
       }

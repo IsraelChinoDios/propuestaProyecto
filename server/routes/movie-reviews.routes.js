@@ -2,6 +2,7 @@
 const MovieReview = require('../models/movieReview.model');
 const Review = require('../models/review.model');
 const User = require('../models/user.model');
+const verifyToken = require('../middleware/auth.middleware');
 
 const normalizeList = (value) => {
   if (!value) return [];
@@ -14,7 +15,9 @@ const normalizeList = (value) => {
 
 router.get('/', async (_req, res, next) => {
   try {
-    const movies = await MovieReview.find().sort({ createdAt: -1 });
+    const movies = await MovieReview.find()
+      .populate('genero', 'nombre descripcion')
+      .sort({ createdAt: -1 });
     res.json(movies);
   } catch (error) {
     next(error);
@@ -23,10 +26,12 @@ router.get('/', async (_req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const movie = await MovieReview.findById(req.params.id).populate({
-      path: 'resenas',
-      populate: { path: 'idUsuario', select: 'nombre' }
-    });
+    const movie = await MovieReview.findById(req.params.id)
+      .populate('genero', 'nombre descripcion')
+      .populate({
+        path: 'resenas',
+        populate: { path: 'idUsuario', select: 'nombre' }
+      });
     if (!movie) {
       return res.status(404).json({ message: 'Película no encontrada' });
     }
@@ -96,7 +101,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', verifyToken, async (req, res, next) => {
   try {
     const { id } = req.params;
     const payload = { ...req.body };
@@ -124,8 +129,45 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
+// UPDATE a specific review and recalculate movie average
+router.patch('/:movieId/reviews/:reviewId', verifyToken, async (req, res, next) => {
+  try {
+    const { movieId, reviewId } = req.params;
+    const { resena, calificacion } = req.body;
+
+    if (!resena && calificacion === undefined) {
+      return res.status(400).json({ message: 'Se requiere al menos resena o calificacion para actualizar' });
+    }
+
+    const updateData = {};
+    if (resena !== undefined) updateData.resena = resena;
+    if (calificacion !== undefined) updateData.calificacion = Number(calificacion);
+
+    const review = await Review.findByIdAndUpdate(reviewId, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!review) {
+      return res.status(404).json({ message: 'Reseña no encontrada' });
+    }
+
+    // Recalculate movie average
+    const movie = await MovieReview.findById(movieId).populate('resenas');
+    if (movie && movie.resenas.length > 0) {
+      const sum = movie.resenas.reduce((s, r) => s + (r.calificacion ?? 0), 0);
+      movie.calificacionGeneral = sum / movie.resenas.length;
+      await movie.save();
+    }
+
+    res.json({ review, movie });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE a specific review from a movie and recalculate average
-router.delete('/:movieId/reviews/:reviewId', async (req, res, next) => {
+router.delete('/:movieId/reviews/:reviewId', verifyToken, async (req, res, next) => {
   try {
     const { movieId, reviewId } = req.params;
     const movie = await MovieReview.findById(movieId);
@@ -158,7 +200,7 @@ router.delete('/:movieId/reviews/:reviewId', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', verifyToken, async (req, res, next) => {
   try {
     const movie = await MovieReview.findByIdAndDelete(req.params.id);
     if (!movie) {

@@ -83,7 +83,7 @@ export interface UserSession {
   _id: string;
   nombre: string;
   sobreMi?: string;
-  generosFav: string[];
+  generosFav: Array<string | { _id: string; nombre: string; descripcion?: string }>;
   idArticulos: number;
   idResenas: number;
   rol: 'admin' | 'usuario';

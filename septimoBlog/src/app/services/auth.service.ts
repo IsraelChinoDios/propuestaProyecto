@@ -5,6 +5,7 @@ import { UserSession } from '../models/article';
 
 interface AuthResponse {
   user: UserSession;
+  token: string;
 }
 
 interface RegisterPayload {
@@ -20,11 +21,26 @@ interface RegisterPayload {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly storageKey = 'currentUser';
+  private readonly tokenKey = 'authToken';
   private readonly apiUrl = 'http://localhost:3000/api';
   private readonly userSignal = signal<UserSession | null>(this.loadFromStorage());
 
   readonly currentUser = computed(() => this.userSignal());
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  hasValidToken(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      console.warn('⚠️ No hay token de autenticación guardado');
+      return false;
+    }
+    console.log('✅ Token encontrado:', token.substring(0, 20) + '...');
+    return true;
+  }
 
   login(identifier: string, contrasena: string) {
     const payload: any = { contrasena };
@@ -35,22 +51,33 @@ export class AuthService {
     }
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/auth/login`, payload)
-      .pipe(tap((res) => this.setUser(res.user)));
+      .pipe(tap((res) => {
+        this.setUser(res.user);
+        this.setToken(res.token);
+      }));
   }
 
   register(payload: RegisterPayload) {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/auth/register`, payload)
-      .pipe(tap((res) => this.setUser(res.user)));
+      .pipe(tap((res) => {
+        this.setUser(res.user);
+        this.setToken(res.token);
+      }));
   }
 
   logout(): void {
     this.userSignal.set(null);
     localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.tokenKey);
   }
 
   updateStoredUser(user: UserSession): void {
     this.setUser(user);
+  }
+
+  private setToken(token: string): void {
+    localStorage.setItem(this.tokenKey, token);
   }
 
   private setUser(user: UserSession): void {

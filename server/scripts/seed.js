@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const Article = require('../models/article.model');
 const Review = require('../models/review.model');
 const MovieReview = require('../models/movieReview.model');
@@ -8,17 +9,28 @@ const User = require('../models/user.model');
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/septimoBlog';
 
 async function upsertUser(nombre, data) {
-  return User.findOneAndUpdate(
-    { nombre },
-    {
-      $set: data,
-      $setOnInsert: {
-        idArticulos: data.idArticulos ?? 0,
-        idResenas: data.idResenas ?? 0
-      }
-    },
-    { new: true, upsert: true, setDefaultsOnInsert: true }
-  );
+  const existing = await User.findOne({ nombre });
+  
+  if (existing) {
+    console.log(`Usuario "${nombre}" ya existe, actualizando...`);
+    return existing;
+  }
+  
+  // Hash password if creating new user
+  if (data.contrasena) {
+    const salt = await bcrypt.genSalt(10);
+    data.contrasena = await bcrypt.hash(data.contrasena, salt);
+  }
+  
+  const user = await User.create({
+    nombre,
+    ...data,
+    idArticulos: data.idArticulos ?? 0,
+    idResenas: data.idResenas ?? 0
+  });
+  
+  console.log(`✓ Usuario "${nombre}" creado con rol: ${user.rol}`);
+  return user;
 }
 
 async function seed() {

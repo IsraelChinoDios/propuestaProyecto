@@ -1,9 +1,10 @@
-﻿import { Component, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ReviewService } from '../../services/review.service';
+import { CategoryService, Category } from '../../services/category.service';
 
 @Component({
   selector: 'app-review-create',
@@ -12,10 +13,11 @@ import { ReviewService } from '../../services/review.service';
   templateUrl: './review-create.html',
   styleUrl: './review-create.css',
 })
-export class ReviewCreateComponent {
+export class ReviewCreateComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly reviewService = inject(ReviewService);
+  private readonly categoryService = inject(CategoryService);
 
   protected form = {
     nombrePeli: '',
@@ -31,6 +33,19 @@ export class ReviewCreateComponent {
   protected feedback = '';
   protected success = false;
   protected loading = false;
+  protected categories: Category[] = [];
+
+  ngOnInit(): void {
+    // Cargar categorías disponibles
+    this.categoryService.getCategories().subscribe({
+      next: (cats) => {
+        this.categories = cats;
+      },
+      error: (err) => {
+        console.error('Error al cargar categorías:', err);
+      }
+    });
+  }
 
   protected onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -59,7 +74,7 @@ export class ReviewCreateComponent {
       director: this.form.director,
       escritor: this.form.escritor,
       actores: this.form.actores.split(',').map((a) => a.trim()).filter(Boolean),
-      genero: this.form.genero,
+      genero: this.form.genero, // ID de categoría seleccionado
       resenas: [],
     };
 

@@ -1,16 +1,18 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { ArticleService } from '../../services/article.service';
 import { ReviewService } from '../../services/review.service';
+import { CategoryService, Category } from '../../services/category.service';
 import { UserSession } from '../../models/article';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [RouterModule, FormsModule],
+  imports: [RouterModule, FormsModule, CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -19,6 +21,7 @@ export class ProfileComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly articleService = inject(ArticleService);
   private readonly reviewService = inject(ReviewService);
+  private readonly categoryService = inject(CategoryService);
   private readonly router = inject(Router);
 
   @Input({ required: true }) user!: UserSession;
@@ -30,9 +33,16 @@ export class ProfileComponent implements OnInit {
   protected generosDraft = '';
   protected articleCount = signal(0);
   protected reviewCount = signal(0);
+  protected allCategories = signal<Category[]>([]);
+  protected selectedCategories = signal<string[]>([]);
+  protected savingGeneros = signal(false);
+  protected generosFeedback = signal('');
+  protected generosIsError = signal(false);
 
   ngOnInit(): void {
     this.loadStats();
+    this.loadCategories();
+    this.initializeSelectedCategories();
   }
 
   private loadStats(): void {
@@ -49,6 +59,22 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  private loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => this.allCategories.set(categories),
+      error: (err) => console.error('Error loading categories:', err)
+    });
+  }
+
+  private initializeSelectedCategories(): void {
+    if (Array.isArray(this.user.generosFav)) {
+      const categoryIds = this.user.generosFav.map((cat: any) => 
+        typeof cat === 'string' ? cat : cat._id
+      );
+      this.selectedCategories.set(categoryIds);
+    }
+  }
+
   protected toggleSobreMi(): void {
     this.editingSobreMi = !this.editingSobreMi;
     this.sobreMiDraft = this.user.sobreMi ?? '';
@@ -56,7 +82,28 @@ export class ProfileComponent implements OnInit {
 
   protected toggleGeneros(): void {
     this.editingGeneros = !this.editingGeneros;
-    this.generosDraft = this.user.generosFav.join(', ');
+    if (this.editingGeneros) {
+      this.initializeSelectedCategories();
+    }
+  }
+
+  protected toggleCategory(categoryId: string): void {
+    const current = this.selectedCategories();
+    if (current.includes(categoryId)) {
+      this.selectedCategories.set(current.filter(id => id !== categoryId));
+    } else {
+      this.selectedCategories.set([...current, categoryId]);
+    }
+  }
+
+  protected isCategorySelected(categoryId: string): boolean {
+    return this.selectedCategories().includes(categoryId);
+  }
+
+  protected getGenreName(genre: any): string {
+    if (!genre) return '';
+    if (typeof genre === 'string') return genre;
+    return genre.nombre || '';
   }
 
   protected saveSobreMi(): void {
@@ -72,18 +119,28 @@ export class ProfileComponent implements OnInit {
   }
 
   protected saveGeneros(): void {
-    const generos = this.generosDraft
-      .split(',')
-      .map((genre) => genre.trim())
-      .filter(Boolean);
+    const generosFav = this.selectedCategories();
+    this.generosFeedback.set('');
+    this.generosIsError.set(false);
+    this.savingGeneros.set(true);
 
-    this.userService.updateUser(this.user._id, { generosFav: generos }).subscribe({
+    this.userService.updateUser(this.user._id, { generosFav }).subscribe({
       next: (user) => {
         this.user = user;
         this.authService.updateStoredUser(user);
+        this.savingGeneros.set(false);
         this.editingGeneros = false;
+        // pequeña confirmación
+        this.generosIsError.set(false);
+        this.generosFeedback.set('¡Preferencias guardadas!');
+        setTimeout(() => this.generosFeedback.set(''), 2000);
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error(err);
+        this.savingGeneros.set(false);
+        this.generosIsError.set(true);
+        this.generosFeedback.set(err?.error?.message || 'No se pudieron guardar las preferencias');
+      }
     });
   }
 

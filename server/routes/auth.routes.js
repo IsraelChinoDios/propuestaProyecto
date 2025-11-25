@@ -70,7 +70,13 @@ router.post('/register', async (req, res, next) => {
       rol: userRol
     });
 
-    res.status(201).json({ user: sanitizeUser(user) });
+    const token = jwt.sign(
+      { id: user._id, rol: user.rol },
+      process.env.JWT_SECRET || 'secret_key_default',
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({ user: sanitizeUser(user), token });
   } catch (error) {
     next(error);
   }

@@ -1,6 +1,7 @@
 ﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { from, mergeMap, Observable } from 'rxjs';
+import { Category } from './category.service';
 
 export interface MovieCreatePayload {
   nombrePeli: string;
@@ -10,7 +11,7 @@ export interface MovieCreatePayload {
   director: string;
   escritor: string;
   actores: string[];
-  genero: string;
+  genero: string; // ID de Category
   poster: string;
   resenas?: string[];
 }
@@ -24,7 +25,7 @@ export interface MovieReviewResponse {
   director: string;
   escritor: string;
   actores: string[];
-  genero: string;
+  genero: string | Category | null; // Puede ser ID, objeto Category, o null
   poster: string;
   resenas?: Array<{
     _id: string;
@@ -68,8 +69,17 @@ export class ReviewService {
   }
 
   deleteReview(movieId: string, reviewId: string): Observable<{ message: string; review: any; movie: MovieReviewResponse }> {
+    console.log('🗑️ Intentando eliminar reseña:', reviewId, 'de película:', movieId);
     return this.http.delete<{ message: string; review: any; movie: MovieReviewResponse }>(
       `${this.apiUrl}/movie-reviews/${movieId}/reviews/${reviewId}`
+    );
+  }
+
+  updateReview(movieId: string, reviewId: string, payload: { resena?: string; calificacion?: number }): Observable<{ review: any; movie: MovieReviewResponse }> {
+    console.log('✏️ Intentando actualizar reseña:', reviewId, payload);
+    return this.http.patch<{ review: any; movie: MovieReviewResponse }>(
+      `${this.apiUrl}/movie-reviews/${movieId}/reviews/${reviewId}`,
+      payload
     );
   }
 

@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { ReviewService, MovieReviewResponse } from '../../services/review.service';
 import { ArticleService, UserArticleResponse } from '../../services/article.service';
 import { UserService } from '../../services/user.service';
+import { CategoryService, Category } from '../../services/category.service';
 
 interface User {
   _id: string;
@@ -35,20 +36,24 @@ export class AdminDashboardComponent implements OnInit {
   private readonly reviewService = inject(ReviewService);
   private readonly articleService = inject(ArticleService);
   private readonly userService = inject(UserService);
+  private readonly categoryService = inject(CategoryService);
   private readonly router = inject(Router);
 
   protected movies = signal<MovieReviewResponse[]>([]);
   protected articles = signal<UserArticleResponse[]>([]);
   protected users = signal<User[]>([]);
   protected reviews = signal<Review[]>([]);
+  protected categories = signal<Category[]>([]);
   protected loading = signal(true);
   protected error = signal<string | null>(null);
-  protected activeTab = signal<'movies' | 'articles' | 'users' | 'reviews'>('movies');
+  protected activeTab = signal<'movies' | 'articles' | 'users' | 'reviews' | 'categories'>('movies');
   protected selectedReview = signal<Review | null>(null);
   protected showReviewModal = signal(false);
   protected showCreateReviewModal = signal(false);
   protected showEditUserModal = signal(false);
   protected showCreateUserModal = signal(false);
+  protected showCreateCategoryModal = signal(false);
+  protected showEditCategoryModal = signal(false);
   protected showCreateArticleModal = signal(false);
   protected showEditArticleModal = signal(false);
   protected showCreateMovieModal = signal(false);
@@ -57,6 +62,7 @@ export class AdminDashboardComponent implements OnInit {
   protected totalArticles = signal(0);
   protected totalUsers = signal(0);
   protected totalReviews = signal(0);
+  protected totalCategories = signal(0);
   protected createReviewForm = signal({
     movieId: '',
     calificacion: 5,
@@ -91,12 +97,23 @@ export class AdminDashboardComponent implements OnInit {
     poster: null as File | null
   });
   protected editMovieData = signal<MovieReviewResponse | null>(null);
+  protected createCategoryForm = signal({
+    nombre: '',
+    descripcion: ''
+  });
+  protected editCategoryData = signal<Category | null>(null);
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
     if (!currentUser || currentUser.rol !== 'admin') {
       this.router.navigate(['/perfil']);
       return;
+    }
+
+    // Verificar si hay token de autenticación
+    if (!this.authService.hasValidToken()) {
+      console.error('❌ No se encontró token de autenticación. Por favor, cierra sesión e inicia sesión nuevamente.');
+      alert('⚠️ IMPORTANTE: No se detectó un token de autenticación.\n\nPor favor:\n1. Cierra sesión\n2. Vuelve a iniciar sesión\n\nEsto es necesario para poder editar/eliminar contenido.');
     }
 
     this.loadDashboardData();
@@ -135,6 +152,9 @@ export class AdminDashboardComponent implements OnInit {
 
     // Load reviews
     this.loadAllReviews();
+
+    // Load categories
+    this.loadCategories();
 
     this.loading.set(false);
   }
@@ -208,7 +228,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  protected setActiveTab(tab: 'movies' | 'articles' | 'users' | 'reviews'): void {
+  protected setActiveTab(tab: 'movies' | 'articles' | 'users' | 'reviews' | 'categories'): void {
     this.activeTab.set(tab);
   }
 
@@ -234,10 +254,12 @@ export class AdminDashboardComponent implements OnInit {
         next: () => {
           this.articles.set(this.articles().filter((a) => a._id !== articleId));
           this.totalArticles.set(this.totalArticles() - 1);
+          alert('Artículo eliminado correctamente');
         },
         error: (err: any) => {
           console.error('Error al eliminar artículo:', err);
-          alert('Error al eliminar el artículo');
+          const errorMsg = err.error?.message || err.message || 'Error desconocido';
+          alert(`Error al eliminar el artículo: ${errorMsg}\n\nRevisa la consola para más detalles.`);
         }
       });
     }
@@ -286,10 +308,12 @@ export class AdminDashboardComponent implements OnInit {
               }
             });
             this.closeReviewModal();
+            alert('Reseña eliminada correctamente');
           },
           error: (err: any) => {
             console.error('Error al eliminar reseña:', err);
-            alert('Error al eliminar la reseña');
+            const errorMsg = err.error?.message || err.message || 'Error desconocido';
+            alert(`Error al eliminar la reseña: ${errorMsg}\n\nRevisa la consola para más detalles.`);
           }
         });
       }
@@ -325,6 +349,12 @@ export class AdminDashboardComponent implements OnInit {
       return idUsuario;
     }
     return idUsuario?.nombre || 'Desconocido';
+  }
+
+  protected getCategoryName(genero: any): string {
+    if (!genero) return 'Sin categoría';
+    if (typeof genero === 'string') return genero;
+    return genero?.nombre || 'Sin categoría';
   }
 
   protected openCreateReviewModal(): void {
@@ -661,7 +691,8 @@ export class AdminDashboardComponent implements OnInit {
         },
         error: (err: any) => {
           console.error('Error al actualizar artículo:', err);
-          alert('Error al actualizar el artículo');
+          const errorMsg = err.error?.message || err.message || 'Error desconocido';
+          alert(`Error al actualizar el artículo: ${errorMsg}\n\nRevisa la consola para más detalles.`);
         }
       });
     } else {
@@ -708,13 +739,19 @@ export class AdminDashboardComponent implements OnInit {
 
   protected openEditMovieModal(movie: MovieReviewResponse): void {
     this.editMovieData.set({ ...movie });
+    
+    // Extract category ID
+    const generoId = typeof movie.genero === 'string' 
+      ? movie.genero 
+      : (movie.genero as any)?._id || '';
+    
     this.createMovieForm.set({
       nombrePeli: movie.nombrePeli,
       anoEstreno: movie.ano || new Date().getFullYear(),
       director: movie.director || '',
       escritor: movie.escritor || '',
       actores: Array.isArray(movie.actores) ? movie.actores.join(', ') : movie.actores || '',
-      genero: movie.genero || '',
+      genero: generoId,
       sinopsis: movie.sinopsis || '',
       poster: null
     });
@@ -766,7 +803,7 @@ export class AdminDashboardComponent implements OnInit {
 
     // Validation
     if (!form.nombrePeli.trim() || !form.director.trim() || !form.escritor.trim() || 
-        !form.actores.trim() || !form.genero.trim() || !form.sinopsis.trim()) {
+        !form.actores.trim() || !form.genero || !form.sinopsis.trim()) {
       alert('Por favor completa todos los campos obligatorios');
       return;
     }
@@ -792,7 +829,7 @@ export class AdminDashboardComponent implements OnInit {
         director: form.director.trim(),
         escritor: form.escritor.trim(),
         actores: actoresArray,
-        genero: form.genero.trim(),
+        genero: form.genero,
         sinopsis: form.sinopsis.trim()
       };
 
@@ -827,7 +864,7 @@ export class AdminDashboardComponent implements OnInit {
             director: form.director.trim(),
             escritor: form.escritor.trim(),
             actores: actoresArray,
-            genero: form.genero.trim(),
+            genero: form.genero,
             sinopsis: form.sinopsis.trim()
           },
           form.poster
@@ -844,6 +881,158 @@ export class AdminDashboardComponent implements OnInit {
             alert('Error al crear la película');
           }
         });
+    }
+  }
+
+  // ==================== CATEGORY METHODS ====================
+
+  private loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories.set(categories);
+        this.totalCategories.set(categories.length);
+      },
+      error: (err) => {
+        console.error('Error loading categories:', err);
+        this.categories.set([]);
+      }
+    });
+  }
+
+  protected openCreateCategoryModal(): void {
+    this.createCategoryForm.set({
+      nombre: '',
+      descripcion: ''
+    });
+    this.showCreateCategoryModal.set(true);
+  }
+
+  protected closeCreateCategoryModal(): void {
+    this.showCreateCategoryModal.set(false);
+    this.createCategoryForm.set({
+      nombre: '',
+      descripcion: ''
+    });
+  }
+
+  protected openEditCategoryModal(category: Category): void {
+    this.editCategoryData.set({ ...category });
+    this.showEditCategoryModal.set(true);
+  }
+
+  protected closeEditCategoryModal(): void {
+    this.showEditCategoryModal.set(false);
+    this.editCategoryData.set(null);
+  }
+
+  protected updateCreateCategoryForm(field: string, event: any): void {
+    const form = this.createCategoryForm();
+    let value = event;
+    
+    if (event?.target) {
+      value = event.target.value;
+    }
+    
+    this.createCategoryForm.set({
+      ...form,
+      [field]: value
+    });
+  }
+
+  protected updateEditCategoryData(field: string, event: any): void {
+    const data = this.editCategoryData();
+    if (!data) return;
+    
+    let value = event;
+    if (event?.target) {
+      value = event.target.value;
+    }
+    
+    this.editCategoryData.set({
+      ...data,
+      [field]: value
+    });
+  }
+
+  protected createCategory(): void {
+    const form = this.createCategoryForm();
+    
+    if (!form.nombre.trim()) {
+      alert('El nombre de la categoría es obligatorio');
+      return;
+    }
+
+    const payload = {
+      nombre: form.nombre.trim(),
+      descripcion: form.descripcion.trim()
+    };
+
+    this.categoryService.createCategory(payload).subscribe({
+      next: (newCategory) => {
+        this.categories.set([...this.categories(), newCategory]);
+        this.totalCategories.set(this.totalCategories() + 1);
+        this.closeCreateCategoryModal();
+        alert('Categoría creada correctamente');
+      },
+      error: (err: any) => {
+        console.error('Error al crear categoría:', err);
+        const errorMsg = err.error?.message || err.message || 'Error desconocido';
+        alert(`Error al crear la categoría: ${errorMsg}`);
+      }
+    });
+  }
+
+  protected updateCategory(): void {
+    const data = this.editCategoryData();
+    
+    if (!data || !data._id) {
+      alert('Datos de categoría inválidos');
+      return;
+    }
+
+    if (!data.nombre.trim()) {
+      alert('El nombre de la categoría es obligatorio');
+      return;
+    }
+
+    const payload = {
+      nombre: data.nombre.trim(),
+      descripcion: data.descripcion?.trim() || ''
+    };
+
+    this.categoryService.updateCategory(data._id, payload).subscribe({
+      next: () => {
+        const categories = this.categories();
+        const idx = categories.findIndex((c) => c._id === data._id);
+        if (idx >= 0) {
+          categories[idx] = { ...data };
+          this.categories.set([...categories]);
+        }
+        this.closeEditCategoryModal();
+        alert('Categoría actualizada correctamente');
+      },
+      error: (err: any) => {
+        console.error('Error al actualizar categoría:', err);
+        const errorMsg = err.error?.message || err.message || 'Error desconocido';
+        alert(`Error al actualizar la categoría: ${errorMsg}`);
+      }
+    });
+  }
+
+  protected deleteCategory(categoryId: string): void {
+    if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+      this.categoryService.deleteCategory(categoryId).subscribe({
+        next: () => {
+          this.categories.set(this.categories().filter((c) => c._id !== categoryId));
+          this.totalCategories.set(this.totalCategories() - 1);
+          alert('Categoría eliminada correctamente');
+        },
+        error: (err: any) => {
+          console.error('Error al eliminar categoría:', err);
+          const errorMsg = err.error?.message || err.message || 'Error desconocido';
+          alert(`Error al eliminar la categoría: ${errorMsg}`);
+        }
+      });
     }
   }
 }

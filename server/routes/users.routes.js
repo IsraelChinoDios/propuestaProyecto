@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const mongoose = require('mongoose');
 const User = require('../models/user.model');
 const Review = require('../models/review.model');
 
@@ -9,22 +10,50 @@ const sanitizeUser = (userDoc) => {
 };
 
 const normalizeGeneros = (generos) => {
-  if (!generos) {
-    return [];
-  }
+  if (!generos) return [];
+
+  // Helper to resolve to an ID string
+  const toId = (g) => {
+    if (!g) return undefined;
+    if (typeof g === 'string') return g;
+    if (typeof g === 'object' && g._id) return String(g._id);
+    return undefined;
+  };
+
+  // Filter only valid Mongo ObjectId strings to avoid CastError
+  const isValidId = (id) => typeof id === 'string' && mongoose.Types.ObjectId.isValid(id);
+
   if (Array.isArray(generos)) {
-    return generos.map((g) => g?.trim()).filter(Boolean);
+    return generos
+      .map(toId)
+      .filter((id) => isValidId(id));
   }
-  return String(generos)
-    .split(',')
-    .map((g) => g.trim())
-    .filter(Boolean);
+
+  // Si es un string, intentar parsearlo como JSON o dividir por comas
+  if (typeof generos === 'string') {
+    try {
+      const parsed = JSON.parse(generos);
+      const arr = Array.isArray(parsed) ? parsed : [parsed];
+      return arr.map(toId).filter((id) => isValidId(id));
+    } catch {
+      return generos
+        .split(',')
+        .map((g) => g.trim())
+        .map(toId)
+        .filter((id) => isValidId(id));
+    }
+  }
+
+  const id = toId(generos);
+  return isValidId(id) ? [id] : [];
 };
 
 // Get all users
 router.get('/', async (req, res, next) => {
   try {
-    const users = await User.find().select('-contrasena');
+    const users = await User.find()
+      .select('-contrasena')
+      .populate('generosFav', 'nombre descripcion');
     res.json(users);
   } catch (error) {
     next(error);
@@ -72,7 +101,7 @@ router.patch('/:id', async (req, res, next) => {
     const updated = await User.findByIdAndUpdate(req.params.id, payload, {
       new: true,
       runValidators: true
-    });
+    }).populate('generosFav', 'nombre descripcion');
 
     if (!updated) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });

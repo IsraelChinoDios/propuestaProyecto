@@ -23,7 +23,12 @@
         <input type="text" placeholder="ACTOR(ES)" [(ngModel)]="form.actores" name="actores" required />
       </div>
       <div class="form-right">
-        <input type="text" placeholder="GÉNERO(S)" [(ngModel)]="form.genero" name="genero" required />
+        <select [(ngModel)]="form.genero" name="genero" [ngClass]="{ placeholder: !form.genero }" required>
+          <option value="">Selecciona una categoría</option>
+          @for (category of categories; track category._id) {
+            <option [value]="category._id">{{ category.nombre }}</option>
+          }
+        </select>
         <textarea placeholder="SINOPSIS" [(ngModel)]="form.sinopsis" name="sinopsis" required></textarea>
         <label class="file-upload">
           AGREGA UN PÓSTER
@@ -37,7 +42,7 @@
         <button type="button" class="btn cancel" (click)="cancel()" [disabled]="loading">CANCELAR</button>
       </div>
       <div class="note">
-        Solo administradores pueden crear películas para reseñar. El póster es obligatorio.
+        El póster es obligatorio.
       </div>
     </div>
   </form>

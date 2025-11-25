@@ -24,7 +24,7 @@
         <p><strong>Director:</strong> {{ movie.director }}</p>
         <p><strong>Escritor:</strong> {{ movie.escritor }}</p>
         <p><strong>Actores:</strong> {{ movie.actores.join(', ') }}</p>
-        <p><strong>Género:</strong> {{ movie.genero }}</p>
+        <p><strong>Género:</strong> {{ getGenreName(movie.genero) }}</p>
       </div>
     </div>
 

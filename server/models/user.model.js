@@ -10,8 +10,8 @@ const UserSchema = new Schema(
     sobreMi: String,
     generosFav: [
       {
-        type: String,
-        trim: true
+        type: Schema.Types.ObjectId,
+        ref: 'Category'
       }
     ],
     avatar: String,

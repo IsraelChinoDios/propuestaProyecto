@@ -71,10 +71,12 @@ export class ArticleService {
   }
 
   deleteArticle(id: string): Observable<void> {
+    console.log('🗑️ Intentando eliminar artículo:', id);
     return this.http.delete<void>(`${this.apiUrl}/articles/${id}`);
   }
 
   updateArticle(id: string, payload: any): Observable<UserArticleResponse> {
+    console.log('✏️ Intentando actualizar artículo:', id, payload);
     return this.http.put<UserArticleResponse>(`${this.apiUrl}/articles/${id}`, payload);
   }
 

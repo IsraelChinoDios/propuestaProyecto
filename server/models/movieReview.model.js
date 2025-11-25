@@ -21,7 +21,10 @@ const MovieReviewSchema = new Schema(
     director: String,
     escritor: String,
     actores: [String],
-    genero: String,
+    genero: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category'
+    },
     poster: {
       type: String,
       required: true

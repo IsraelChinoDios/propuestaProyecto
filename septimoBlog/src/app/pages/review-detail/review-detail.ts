@@ -111,4 +111,10 @@ export class ReviewDetailComponent {
     if (typeof u === 'string') return u;
     return (u.nombre as string) || 'Usuario';
   }
+
+  protected getGenreName(genero: any): string {
+    if (!genero) return 'Sin categoría';
+    if (typeof genero === 'string') return genero;
+    return genero.nombre || 'Sin categoría';
+  }
 }
