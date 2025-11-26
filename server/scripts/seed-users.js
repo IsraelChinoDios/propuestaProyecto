@@ -49,11 +49,6 @@ async function seed() {
   try {
     await mongoose.connect(MONGO_URI);
     console.log('🔗 Conectado a MongoDB, iniciando seed...\n');
-
-    // ========================================
-    // CATEGORÍAS
-    // ========================================
-    console.log('📁 Creando categorías...');
     
     const sciFiCategory = await createCategory('Ciencia Ficción', 'Películas de ciencia ficción, futurismo y tecnología');
     const terrorCategory = await createCategory('Terror', 'Películas de terror, horror y suspense');
@@ -81,21 +76,6 @@ async function seed() {
       avatar: 'assets/Imagenes/1.png'
     });
 
-    console.log('\n✅ Seed completado exitosamente!\n');
-    console.log('═══════════════════════════════════════════');
-    console.log('📋 CREDENCIALES PARA INICIAR SESIÓN:');
-    console.log('═══════════════════════════════════════════\n');
-    console.log('👑 ADMINISTRADOR:');
-    console.log('   Usuario:     admin');
-    console.log('   Contraseña:  admin123\n');
-    console.log('👤 USUARIO NORMAL:');
-    console.log('   Usuario:     usuario');
-    console.log('   Contraseña:  usuario123\n');
-    console.log('═══════════════════════════════════════════');
-    console.log('📊 DATOS CREADOS:');
-    console.log('   - 2 usuarios (1 admin, 1 usuario)');
-    console.log('   - 6 categorías');
-    console.log('═══════════════════════════════════════════\n');
 
     await mongoose.disconnect();
     process.exit(0);
