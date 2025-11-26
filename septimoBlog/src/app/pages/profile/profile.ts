@@ -101,9 +101,20 @@ export class ProfileComponent implements OnInit {
   }
 
   protected getGenreName(genre: any): string {
-    if (!genre) return '';
-    if (typeof genre === 'string') return genre;
-    return genre.nombre || '';
+    if (!genre) return 'Sin categoría';
+
+    // Si ya es el objeto Category, devolver su nombre
+    if (typeof genre === 'object' && genre?.nombre) {
+      return genre.nombre || 'Sin categoría';
+    }
+
+    // Si es un ID (string), resolverlo contra las categorías cargadas
+    if (typeof genre === 'string') {
+      const match = this.allCategories().find((c) => c._id === genre);
+      return match?.nombre || 'Sin categoría';
+    }
+
+    return 'Sin categoría';
   }
 
   protected saveSobreMi(): void {
